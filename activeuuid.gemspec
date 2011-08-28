@@ -7,18 +7,15 @@ Gem::Specification.new do |s|
   s.version     = Activeuuid::VERSION
   s.authors     = ["Nate Murray"]
   s.email       = ["nate@natemurray.com"]
-  s.homepage    = ""
-  s.summary     = %q{TODO: Write a gem summary}
-  s.description = %q{TODO: Write a gem description}
-
-  s.rubyforge_project = "activeuuid"
+  s.homepage    = "http://www.xcombinator.com"
+  s.summary     = %q{Add binary UUIDs to ActiveRecord in MySQL}
+  s.description = %q{Add's binary (not string) UUIDs to ActiveRecord in MySQL}
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  # specify any dependencies here; for example:
   # s.add_development_dependency "rspec"
-  # s.add_runtime_dependency "rest-client"
+  s.add_runtime_dependency "uuidtools"
 end
