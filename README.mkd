@@ -1,0 +1,50 @@
+# activeuuid
+
+Add `binary(16)` UUIDs to ActiveRecord. 
+
+## Example
+
+## Motivation
+
+From [2]:
+
+> [Here is a] UUID:  1e8ef774-581c-102c-bcfe-f1ab81872213
+> 
+> A UUID like the one above is 36 characters long, including dashes.  If you store this VARCHAR(36), you're going to decrease compare performance dramatically.  This is your primary key, you don't want it to be slow.
+> 
+> At its bit level, a UUID is 128 bits, which means it will fit into
+> 16 bytes, note this is not very human readable, but it will keep
+> storage low, and is only 4 times larger than a 32-bit int, or 2
+> times larger than a 64-bit int.
+
+Many of the existing examples of how to use UUIDs as primary keys
+in Rails use strings rather than bytes (e.g. [3]).
+
+However, this plugin stores the primary keys as bytes. To the
+application the keys are represented by a UUIDTools::UUID object.
+
+## Benefits of UUIDs as primary key
+
+* allows multi-master write
+* no locking due to auto-increment
+* with time-based UUIDs you can store a timestamp within your UUID
+* you can create natural keys 
+
+## Future work
+* more transparent support for natural and composite keys
+* support for MySQLs `INSERT ... ON DUPLICATE KEY UPDATE` syntax
+* tests
+
+## References
+* [1] http://bret.appspot.com/entry/how-friendfeed-uses-mysql
+* [2] http://kekoav.com/blog/36-computers/58-uuids-as-primary-keys-in-mysql.html 
+* [3] https://gist.github.com/937739
+* [4] http://www.codinghorror.com/blog/2007/03/primary-keys-ids-versus-guids.html
+* [5] http://krow.livejournal.com/497839.html
+
+## Dependencies
+I'm using JRuby 1.9 (1.6.3) and Rails 3.1.0.rc6. This should work
+under MRI Ruby but YMMV.
+
+## Author
+Nate Murray <nate@xcombinator.com>
