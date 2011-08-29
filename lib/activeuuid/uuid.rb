@@ -8,6 +8,16 @@ module UUIDTools
   end
 end
 
+module Arel
+  module Visitors
+    class MySQL < Arel::Visitors::ToSql
+      def visit_UUIDTools_UUID(o)
+        o.quoted_id
+      end
+    end
+  end
+end
+
 module ActiveUUID
   class UUIDSerializer
     def load(binary)
