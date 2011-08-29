@@ -89,21 +89,30 @@ application the keys are represented by a UUIDTools::UUID object.
 
 ## Benefits of UUIDs as primary key
 
-* allows multi-master write
+* no id conflict during multi-master write
 * no locking due to auto-increment
 * with time-based UUIDs you can store a timestamp within your UUID
-* you can create natural keys 
+* you can create natural keys (based on the SHA of model attributes)
 
 ## Future work
 * more transparent support for natural and composite keys
 * support for MySQLs `INSERT ... ON DUPLICATE KEY UPDATE` syntax
 * support a primary column name other than `id`
+* work on other databases (Postgres, etc)
 * tests
 
 ## Inspiration 
 James Golick's `friendly` is a great gem for NoSQL on MySQL. It's
 a great gateway drug to systems like Cassandra for teams that are
 already familiar with the ins-and-outs of MySQL.
+
+## Installation
+
+Add this to your `Gemfile`
+
+    gem "activeuuid"
+
+Or get the code here: https://github.com/jashmenn/activeuuid
 
 ## References
 * [1] http://bret.appspot.com/entry/how-friendfeed-uses-mysql
