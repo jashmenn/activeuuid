@@ -4,6 +4,70 @@ Add `binary(16)` UUIDs to ActiveRecord.
 
 ## Example
 
+### Create a Migration
+
+`activeuuid` adds the `uuid` type to your migrations. Example:
+
+```ruby
+class CreateEmails < ActiveRecord::Migration
+  def self.up
+    create_table :emails, :id => false  do |t|
+      t.uuid :id, :unique => true
+      t.uuid :sender_id  # belongs_to :sender
+
+      t.string :subject
+      t.text :body
+
+      t.timestamp :sent_at
+      t.timestamps
+    end
+    add_index :emails, :id
+  end
+
+  def self.down
+    drop_table :emails
+  end
+end
+```
+
+### include ActiveUUID::UUID in your model
+
+```ruby
+class Email < ActiveRecord::Base
+  include ActiveUUID::UUID
+  belongs_to :sender
+end
+```
+
+### use it:
+Here are some example specs:
+
+```ruby
+require 'spec_helper'
+
+describe Email do
+
+  context "when using uuid's as keys" do
+    before(:each) do
+      Email.delete_all
+      @guid = "1dd74dd0-d116-11e0-99c7-5ac5d975667e"
+      @e = Email.new(:subject => "hello", :body => "world") {|e| e.id = UUIDTools::UUID.parse(@guid) }
+      @e.save
+    end
+
+    it "the id guid should be equal to the uuid" do
+      @e.id.to_s.should eql(@guid)
+    end
+
+    it "should be able to find an email by the uuid" do
+      f = Email.find(UUIDTools::UUID.parse(@guid))
+      f.id.to_s.should eql(@guid)
+    end
+
+  end
+end
+```
+
 ## Motivation
 
 From [2]:
@@ -33,7 +97,13 @@ application the keys are represented by a UUIDTools::UUID object.
 ## Future work
 * more transparent support for natural and composite keys
 * support for MySQLs `INSERT ... ON DUPLICATE KEY UPDATE` syntax
+* support a primary column name other than `id`
 * tests
+
+## Inspiration 
+James Golick's `friendly` is a great gem for NoSQL on MySQL. It's
+a great gateway drug to systems like Cassandra for teams that are
+already familiar with the ins-and-outs of MySQL.
 
 ## References
 * [1] http://bret.appspot.com/entry/how-friendfeed-uses-mysql
@@ -41,10 +111,13 @@ application the keys are represented by a UUIDTools::UUID object.
 * [3] https://gist.github.com/937739
 * [4] http://www.codinghorror.com/blog/2007/03/primary-keys-ids-versus-guids.html
 * [5] http://krow.livejournal.com/497839.html
+* [6] https://github.com/jamesgolick/friendly
 
 ## Dependencies
-I'm using JRuby 1.9 (1.6.3) and Rails 3.1.0.rc6. This should work
-under MRI Ruby but YMMV.
+Rails ~> 3.1.0 - It uses the custom column serialization Aaron
+Patterson introduced in Rails 3.1.
+
+I'm using JRuby 1.9 (1.6.3) but this should work under MRI (YMMV).
 
 ## Author
 Nate Murray <nate@xcombinator.com>
