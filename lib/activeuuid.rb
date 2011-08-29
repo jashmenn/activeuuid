@@ -1,6 +1,6 @@
 require "activeuuid/version"
 
 module ActiveUUID
-  require 'lib/activeuuid/railtie' if defined?(Rails)
-  require 'lib/activeuuid/uuid'
+  require 'activeuuid/railtie' if defined?(Rails)
+  require 'activeuuid/uuid'
 end
