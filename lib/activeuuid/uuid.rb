@@ -40,18 +40,31 @@ module ActiveUUID
 
       set_primary_key "id"
       serialize :id, ActiveUUID::UUIDSerializer.new
-
       
       def generate_uuid_if_needed
         generate_uuid unless self.id
       end
 
       def generate_uuid
-        self.id = UUIDTools::UUID.timestamp_create
+        if nka = self.class.natural_key_attributes
+          # TODO if all the attributes return nil you might want to warn about this
+          chained = nka.collect{|a| self.send(a).to_s}.join("-")
+          self.id = UUIDTools::UUID.sha1_create(UUIDTools::UUID_OID_NAMESPACE, chained)
+        else
+          self.id = UUIDTools::UUID.timestamp_create
+        end
       end
     end
 
     module ClassMethods
+      def natural_key_attributes
+        @_activeuuid_natural_key_attributes
+      end
+
+      def natural_key(*attributes)
+        @_activeuuid_natural_key_attributes = attributes
+      end
+
       #def uuids(*attributes)
       #  attributes.each do |attribute|
       #    class_eval <<-eos
