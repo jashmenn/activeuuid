@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.email       = ["nate@natemurray.com"]
   s.homepage    = "http://www.xcombinator.com"
   s.summary     = %q{Add binary UUIDs to ActiveRecord in MySQL}
-  s.description = %q{Add's binary (not string) UUIDs to ActiveRecord in MySQL}
+  s.description = %q{Add binary (not string) UUIDs to ActiveRecord in MySQL}
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
