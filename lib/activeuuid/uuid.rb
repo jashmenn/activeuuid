@@ -65,15 +65,16 @@ module ActiveUUID
         @_activeuuid_natural_key_attributes = attributes
       end
 
-      #def uuids(*attributes)
-      #  attributes.each do |attribute|
-      #    class_eval <<-eos
-      #      # def #{@association_name}
-      #      #   @_#{@association_name} ||= self.class.associations[:#{@association_name}].new_proxy(self)
-      #      # end
-      #    eos
-      #  end
-      #end
+      def uuids(*attributes)
+       attributes.each do |attribute|
+          serialize "#{attribute}_id".intern, ActiveUUID::UUIDSerializer.new
+         #class_eval <<-eos
+         #  # def #{@association_name}
+         #  #   @_#{@association_name} ||= self.class.associations[:#{@association_name}].new_proxy(self)
+         #  # end
+         #eos
+       end
+      end
     end
 
     module InstanceMethods
