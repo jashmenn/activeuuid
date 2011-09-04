@@ -5,6 +5,10 @@ module UUIDTools
       s = raw.unpack("H*")[0]
       "x'#{s}'"
     end
+
+    def as_json(options = nil)
+      hexdigest.upcase
+    end
   end
 end
 
