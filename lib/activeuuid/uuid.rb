@@ -71,7 +71,7 @@ module ActiveUUID
 
       def uuids(*attributes)
        attributes.each do |attribute|
-          serialize "#{attribute}_id".intern, ActiveUUID::UUIDSerializer.new
+          serialize attribute.intern, ActiveUUID::UUIDSerializer.new
          #class_eval <<-eos
          #  # def #{@association_name}
          #  #   @_#{@association_name} ||= self.class.associations[:#{@association_name}].new_proxy(self)
