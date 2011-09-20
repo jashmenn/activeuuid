@@ -129,4 +129,6 @@ Patterson introduced in Rails 3.1.
 I'm using JRuby 1.9 (1.6.3) but this should work under MRI (YMMV).
 
 ## Author
+
 Nate Murray <nate@xcombinator.com>
+
