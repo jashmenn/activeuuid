@@ -70,7 +70,7 @@ module ActiveUUID
           chained = nka.collect{|a| self.send(a).to_s}.join("-")
           self.id = UUIDTools::UUID.sha1_create(UUIDTools::UUID_OID_NAMESPACE, chained)
         else
-          self.id = UUIDTools::UUID.timestamp_create
+          self.id = UUIDTools::UUID.random_create
         end
       end
     end
@@ -98,6 +98,6 @@ module ActiveUUID
 
     module InstanceMethods
     end
- 
+
   end
 end

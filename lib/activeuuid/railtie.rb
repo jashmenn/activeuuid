@@ -11,7 +11,7 @@ module ActiveUUID
             options = args.extract_options!
             column_names = args
             column_names.each { |name| column(name, 'binary(16)', options) }
-          end                                                                     
+          end
         end
       end
 
