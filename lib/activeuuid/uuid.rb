@@ -64,10 +64,6 @@ module ActiveUUID
         generate_uuid unless self.id
       end
 
-      def to_param
-        id.to_param
-      end
-
       def generate_uuid
         if nka = self.class.natural_key_attributes
           # TODO if all the attributes return nil you might want to warn about this
