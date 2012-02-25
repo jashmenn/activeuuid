@@ -14,7 +14,6 @@ module ActiveUUID
           end
         end
       end
-
     end
   end
 end
