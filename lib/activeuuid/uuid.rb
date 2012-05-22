@@ -23,6 +23,12 @@ module Arel
         o.quoted_id
       end
     end
+
+    class SQLite < Arel::Visitors::ToSql
+      def visit_UUIDTools_UUID(o)
+        o.quoted_id
+      end
+    end
   end
 end
 
