@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.version     = Activeuuid::VERSION
   s.authors     = ["Nate Murray"]
   s.email       = ["nate@natemurray.com"]
-  s.homepage    = "http://www.xcombinator.com"
+  s.homepage    = "http://www.eigenjoy.com"
   s.summary     = %q{Add binary UUIDs to ActiveRecord in MySQL}
   s.description = %q{Add binary (not string) UUIDs to ActiveRecord in MySQL}
 
