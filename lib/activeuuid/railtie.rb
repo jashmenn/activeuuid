@@ -6,7 +6,7 @@ module ActiveUUID
     railtie_name :activeuuid
     initializer "activeuuid.configure_rails_initialization" do
       module ActiveRecord::ConnectionAdapters
-        class Table
+        class TableDefinition
           def uuid (*args)
             options = args.extract_options!
             column_names = args
