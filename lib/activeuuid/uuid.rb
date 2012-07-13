@@ -41,13 +41,40 @@ module ActiveUUID
   class UUIDSerializer
     def load(binary)
       case binary
-        when UUIDTools::UUID then binary
-        when nil then nil
-        else UUIDTools::UUID.parse_raw(binary)
+      when UUIDTools::UUID
+        binary
+      when String
+        parse_string(binary)
+      when nil
+        nil
+      else
+        raise TypeError, "the given type cannot be serialized"
       end
     end
+
     def dump(uuid)
-      uuid ? uuid.raw : nil
+      case uuid
+      when UUIDTools::UUID
+        uuid.raw
+      when String
+        parse_string(uuid).raw
+      when nil
+        nil
+      else
+        raise TypeError, "the given type cannot be serialized"
+      end
+    end
+
+    private
+
+    def parse_string str
+      if str.length == 36
+        UUIDTools::UUID.parse str
+      elsif str.length == 32
+        UUIDTools::UUID.parse_hexdigest str
+      else
+        UUIDTools::UUID.parse_raw str
+      end
     end
   end
 
