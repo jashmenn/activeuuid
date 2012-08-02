@@ -82,28 +82,8 @@ module ActiveUUID
     extend ActiveSupport::Concern
 
     included do
-      before_create :generate_uuid_if_needed
-
-      set_primary_key "id"
-      serialize :id, ActiveUUID::UUIDSerializer.new
-      
-      def generate_uuid_if_needed
-        generate_uuid unless self.id
-      end
-
-      def to_param
-        id.to_param
-      end
-
-      def generate_uuid
-        if nka = self.class.natural_key_attributes
-          # TODO if all the attributes return nil you might want to warn about this
-          chained = nka.collect{|a| self.send(a).to_s}.join("-")
-          self.id = UUIDTools::UUID.sha1_create(UUIDTools::UUID_OID_NAMESPACE, chained)
-        else
-          self.id = UUIDTools::UUID.timestamp_create
-        end
-      end
+      uuids :id
+      before_create :generate_uuids_if_needed
     end
 
     module ClassMethods
@@ -115,19 +95,36 @@ module ActiveUUID
         @_activeuuid_natural_key_attributes = attributes
       end
 
+      def uuid_attributes
+        @_activeuuid_attributes
+      end
+
       def uuids(*attributes)
-       attributes.each do |attribute|
+        @_activeuuid_attributes = attributes.collect(&:intern).each do |attribute|
           serialize attribute.intern, ActiveUUID::UUIDSerializer.new
+        end
          #class_eval <<-eos
          #  # def #{@association_name}
          #  #   @_#{@association_name} ||= self.class.associations[:#{@association_name}].new_proxy(self)
          #  # end
          #eos
-       end
       end
     end
 
-    module InstanceMethods
+    def create_uuid
+      if nka = self.class.natural_key_attributes
+        # TODO if all the attributes return nil you might want to warn about this
+        chained = nka.collect{|a| self.send(a).to_s}.join("-")
+        UUIDTools::UUID.sha1_create(UUIDTools::UUID_OID_NAMESPACE, chained)
+      else
+        UUIDTools::UUID.random_create
+      end
+    end
+
+    def generate_uuids_if_needed
+      self.class.uuid_attributes.each do |attr|
+        self.send("#{attr}=", create_uuid) unless self.send(attr)
+      end
     end
  
   end
