@@ -82,28 +82,7 @@ module ActiveUUID
     extend ActiveSupport::Concern
 
     included do
-      before_create :generate_uuid_if_needed
-
-      set_primary_key "id"
-      serialize :id, ActiveUUID::UUIDSerializer.new
-      
-      def generate_uuid_if_needed
-        generate_uuid unless self.id
-      end
-
-      def to_param
-        id.to_param
-      end
-
-      def generate_uuid
-        if nka = self.class.natural_key_attributes
-          # TODO if all the attributes return nil you might want to warn about this
-          chained = nka.collect{|a| self.send(a).to_s}.join("-")
-          self.id = UUIDTools::UUID.sha1_create(UUIDTools::UUID_OID_NAMESPACE, chained)
-        else
-          self.id = UUIDTools::UUID.timestamp_create
-        end
-      end
+      uuids :id
     end
 
     module ClassMethods
