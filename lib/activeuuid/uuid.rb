@@ -1,3 +1,5 @@
+require 'uuidtools'
+
 module UUIDTools
   class UUID
     # monkey-patch Friendly::UUID to serialize UUIDs to MySQL
@@ -23,6 +25,7 @@ module Arel
         o.quoted_id
       end
     end
+
     class MySQL < Arel::Visitors::ToSql
       def visit_UUIDTools_UUID(o)
         o.quoted_id
@@ -32,6 +35,13 @@ module Arel
     class SQLite < Arel::Visitors::ToSql
       def visit_UUIDTools_UUID(o)
         o.quoted_id
+      end
+    end
+
+    class PostgreSQL < Arel::Visitors::ToSql
+      def visit_UUIDTools_UUID(o)
+       s = o.raw.unpack("H*")[0]
+       "E'\\\\x#{s}'"
       end
     end
   end
