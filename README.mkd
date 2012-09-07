@@ -114,6 +114,24 @@ Add this to your `Gemfile`
 
 Or get the code here: https://github.com/jashmenn/activeuuid
 
+## Notes
+
+### Fixtures
+
+You can use `activeuuid` in fixtures by using the `!!binary` directive in YAML.
+The trick is to base64 encode the raw bytes of the hexdigest.
+
+```yaml
+    devin_ifttt_new_tweet:         
+      id: !!binary "<%= Base64.encode64(UUIDTools::UUID.parse_hexdigest('2D79B402CBA811E1AA7C14DAE903E06A').raw) %>"
+      data:
+        user_id: 1
+        source_id: 1               
+        recipe_id: 1               
+        created_at: Mon, 09 Jul 2012 14:06:21 -0700 
+        body: Nice blog entry!
+```
+
 ## References
 * [1] http://bret.appspot.com/entry/how-friendfeed-uses-mysql
 * [2] http://kekoav.com/blog/36-computers/58-uuids-as-primary-keys-in-mysql.html 
@@ -125,8 +143,6 @@ Or get the code here: https://github.com/jashmenn/activeuuid
 ## Dependencies
 Rails ~> 3.1.0 - It uses the custom column serialization Aaron
 Patterson introduced in Rails 3.1.
-
-I'm using JRuby 1.9 (1.6.3) but this should work under MRI (YMMV).
 
 ## Author
 
