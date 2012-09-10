@@ -40,7 +40,7 @@ module Arel
 
     class PostgreSQL < Arel::Visitors::ToSql
       def visit_UUIDTools_UUID(o)
-       s = o.raw.unpack("H*")[0]
+       s = o.raw.unpack("H*")[1]
        "E'\\\\x#{s}'"
       end
     end
@@ -109,6 +109,11 @@ module ActiveUUID
         @_activeuuid_attributes
       end
 
+      def uuid_generator(generator_name=nil)
+        @_activeuuid_kind = generator_name if generator_name
+        @_activeuuid_kind || :random
+      end 
+
       def uuids(*attributes)
         @_activeuuid_attributes = attributes.collect(&:intern).each do |attribute|
           serialize attribute.intern, ActiveUUID::UUIDSerializer.new
@@ -127,7 +132,12 @@ module ActiveUUID
         chained = nka.collect{|a| self.send(a).to_s}.join("-")
         UUIDTools::UUID.sha1_create(UUIDTools::UUID_OID_NAMESPACE, chained)
       else
-        UUIDTools::UUID.random_create
+        case self.class.uuid_generator
+        when :random
+          UUIDTools::UUID.random_create
+        when :time
+          UUIDTools::UUID.timestamp_create
+        end
       end
     end
 
