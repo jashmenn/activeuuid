@@ -40,7 +40,7 @@ module Arel
 
     class PostgreSQL < Arel::Visitors::ToSql
       def visit_UUIDTools_UUID(o)
-       s = o.raw.unpack("H*")[1]
+       s = o.raw.unpack("H*")[0]
        "E'\\\\x#{s}'"
       end
     end
