@@ -78,6 +78,7 @@ module ActiveUUID
     private
 
     def parse_string str
+      return nil if str.blank?
       if str.length == 36
         UUIDTools::UUID.parse str
       elsif str.length == 32
@@ -112,7 +113,7 @@ module ActiveUUID
       def uuid_generator(generator_name=nil)
         @_activeuuid_kind = generator_name if generator_name
         @_activeuuid_kind || :random
-      end 
+      end
 
       def uuids(*attributes)
         @_activeuuid_attributes = attributes.collect(&:intern).each do |attribute|
@@ -146,6 +147,6 @@ module ActiveUUID
         self.send("#{attr}=", create_uuid) unless self.send(attr)
       end
     end
- 
+
   end
 end

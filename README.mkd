@@ -12,7 +12,7 @@ Add `binary(16)` UUIDs to ActiveRecord.
 class CreateEmails < ActiveRecord::Migration
   def self.up
     create_table :emails, :id => false  do |t|
-      t.uuid :id, :unique => true
+      t.uuid :id, :primary_key => true
       t.uuid :sender_id  # belongs_to :sender
 
       t.string :subject
