@@ -1,4 +1,3 @@
-
 require 'spec_helper'
 
 describe UUIDTools::UUID do
@@ -34,5 +33,5 @@ describe UUIDTools::UUID do
       @uuid.to_param.should eql(@param_out)
     end
   end
-    
+
 end

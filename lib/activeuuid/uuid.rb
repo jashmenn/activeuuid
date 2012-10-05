@@ -3,6 +3,8 @@ require 'uuidtools'
 module UUIDTools
   class UUID
     # monkey-patch Friendly::UUID to serialize UUIDs to MySQL
+    alias_method :id, :raw
+
     def quoted_id
       s = raw.unpack("H*")[0]
       "x'#{s}'"
@@ -40,8 +42,7 @@ module Arel
 
     class PostgreSQL < Arel::Visitors::ToSql
       def visit_UUIDTools_UUID(o)
-       s = o.raw.unpack("H*")[0]
-       "E'\\\\x#{s}'"
+        "'#{o.to_s}'"
       end
     end
   end
@@ -55,10 +56,8 @@ module ActiveUUID
         binary
       when String
         parse_string(binary)
-      when nil
-        nil
       else
-        raise TypeError, "the given type cannot be serialized"
+        nil
       end
     end
 
@@ -67,17 +66,16 @@ module ActiveUUID
       when UUIDTools::UUID
         uuid.raw
       when String
-        parse_string(uuid).raw
-      when nil
-        nil
+        parse_string(uuid).try(:raw)
       else
-        raise TypeError, "the given type cannot be serialized"
+        nil
       end
     end
 
     private
 
     def parse_string str
+      return nil if str.blank?
       if str.length == 36
         UUIDTools::UUID.parse str
       elsif str.length == 32
@@ -92,6 +90,7 @@ module ActiveUUID
     extend ActiveSupport::Concern
 
     included do
+      class_attribute :uuid_attributes, :instance_writer => true
       uuids :id
       before_create :generate_uuids_if_needed
     end
@@ -105,18 +104,18 @@ module ActiveUUID
         @_activeuuid_natural_key_attributes = attributes
       end
 
-      def uuid_attributes
-        @_activeuuid_attributes
-      end
-
       def uuid_generator(generator_name=nil)
         @_activeuuid_kind = generator_name if generator_name
         @_activeuuid_kind || :random
-      end 
+      end
 
       def uuids(*attributes)
-        @_activeuuid_attributes = attributes.collect(&:intern).each do |attribute|
-          serialize attribute.intern, ActiveUUID::UUIDSerializer.new
+        self.uuid_attributes = attributes.collect(&:intern).each do |attribute|
+          serialize attribute, ActiveUUID::UUIDSerializer.new
+          # serializing attributes on the fly
+          define_method "#{attribute}=" do |value|
+            write_attribute attribute, serialized_attributes[attribute.to_s].load(value)
+          end
         end
          #class_eval <<-eos
          #  # def #{@association_name}
@@ -142,10 +141,10 @@ module ActiveUUID
     end
 
     def generate_uuids_if_needed
-      self.class.uuid_attributes.each do |attr|
+      (uuid_attributes & [self.class.primary_key.intern]).each do |attr|
         self.send("#{attr}=", create_uuid) unless self.send(attr)
       end
     end
- 
+
   end
 end

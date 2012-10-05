@@ -1,4 +1,3 @@
- 
 require 'spec_helper'
 
 describe ActiveUUID::UUIDSerializer do
@@ -34,12 +33,13 @@ describe ActiveUUID::UUIDSerializer do
       @serializer.load(nil).should be_nil
     end
 
-    it 'throws an exception for other types' do
-      lambda {
-        @serializer.load(5)
-      }.should raise_error(TypeError)
+    it 'returns nil for ""' do
+      @serializer.load('').should be_nil
     end
-      
+
+    it 'returns nil for other types' do
+      @serializer.load(5).should be_nil
+    end
   end
 
   describe '#dump' do
@@ -65,11 +65,12 @@ describe ActiveUUID::UUIDSerializer do
       @serializer.dump(nil).should be_nil
     end
 
-    it 'throws an exception for other types' do
-      lambda {
-        @serializer.dump(5)
-      }.should raise_error(TypeError)
+    it 'returns nil for ""' do
+      @serializer.dump('').should be_nil
     end
 
+    it 'returns nil for other types' do
+      @serializer.dump(5).should be_nil
+    end
   end
 end
