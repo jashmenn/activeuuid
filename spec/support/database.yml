@@ -1,0 +1,15 @@
+sqlite3:
+  adapter: sqlite3
+  database: ":memory:"
+postgresql:
+  adapter: postgresql
+  username: postgres
+  password:
+  database: activeuuid_test
+  min_messages: ERROR
+mysql:
+  adapter: mysql2
+  host: localhost
+  username: root
+  password:
+  database: activeuuid_test
