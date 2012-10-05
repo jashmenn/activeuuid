@@ -1,6 +1,9 @@
 require "activeuuid/version"
+require 'activeuuid/patches'
+require 'activeuuid/uuid'
+require 'activeuuid/railtie' if defined?(Rails::Railtie)
 
 module ActiveUUID
-  require 'activeuuid/railtie' if defined?(Rails::Railtie)
-  require 'activeuuid/uuid'
 end
+
+ActiveUUID::Patches.apply!

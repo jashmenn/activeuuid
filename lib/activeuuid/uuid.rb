@@ -3,13 +3,11 @@ require 'uuidtools'
 module UUIDTools
   class UUID
     # monkey-patch Friendly::UUID to serialize UUIDs to MySQL
+    alias_method :id, :raw
+
     def quoted_id
       s = raw.unpack("H*")[0]
       "x'#{s}'"
-    end
-
-    def id
-      quoted_id
     end
 
     def as_json(options = nil)
@@ -44,8 +42,7 @@ module Arel
 
     class PostgreSQL < Arel::Visitors::ToSql
       def visit_UUIDTools_UUID(o)
-       s = o.raw.unpack("H*")[0]
-       "E'\\\\x#{s}'"
+        "'#{o.to_s}'"
       end
     end
   end
