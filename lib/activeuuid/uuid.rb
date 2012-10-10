@@ -1,8 +1,8 @@
 require 'uuidtools'
 
+# monkey-patch Friendly::UUID to serialize UUIDs
 module UUIDTools
   class UUID
-    # monkey-patch Friendly::UUID to serialize UUIDs to MySQL
     alias_method :id, :raw
 
     def quoted_id
@@ -17,6 +17,9 @@ module UUIDTools
     def to_param
       hexdigest.upcase
     end
+
+    # duck typing activerecord 3.1 dirty hack )
+    def gsub *; self; end
   end
 end
 
@@ -75,7 +78,7 @@ module ActiveUUID
     private
 
     def parse_string str
-      return nil if str.blank?
+      return nil if str.length == 0
       if str.length == 36
         UUIDTools::UUID.parse str
       elsif str.length == 32
