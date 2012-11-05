@@ -18,7 +18,7 @@ describe Article do
   end
 
   context '.where' do
-    specify { model.where(:id => id).first.should == article }
+    specify { model.where(id: id).first.should == article }
   end
 
   context '.destroy' do
@@ -50,14 +50,40 @@ describe UuidArticle do
   end
 
   context '.where' do
-    specify { model.where(:id => article).first.should == article }
-    specify { model.where(:id => id).first.should == article }
-    specify { model.where(:id => id.to_s).first.should == article }
-    specify { model.where(:id => id.raw).first.should == article }
+    specify { model.where(id: article).first.should == article }
+    specify { model.where(id: id).first.should == article }
+    specify { model.where(id: id.to_s).first.should == article }
+    specify { model.where(id: id.raw).first.should == article }
   end
 
   context '.destroy' do
     specify { article.delete.should be_true }
     specify { article.destroy.should be_true }
+  end
+
+  context 'typecasting' do
+    context 'primary' do
+      before { article.id = '234' }
+      specify do
+        article.id.should == UUIDTools::UUID.parse_raw('234')
+        article.id_before_type_cast.should == '234'
+      end
+      specify do
+        article.id_before_type_cast.should == '234'
+        article.id.should == UUIDTools::UUID.parse_raw('234')
+      end
+    end
+
+    context 'non-primary' do
+      before { article.another_uuid = '234' }
+      specify do
+        article.another_uuid.should == UUIDTools::UUID.parse_raw('234')
+        article.another_uuid_before_type_cast.should == '234'
+      end
+      specify do
+        article.another_uuid_before_type_cast.should == '234'
+        article.another_uuid.should == UUIDTools::UUID.parse_raw('234')
+      end
+    end
   end
 end
