@@ -21,15 +21,16 @@ describe Article do
     specify { model.where(id: id).first.should == article }
   end
 
-  context '.destroy' do
-    specify { article.delete.should be_true }
-    specify { article.destroy.should be_true }
+  context '#destroy' do
+    subject { article }
+    its(:delete) { should be_true }
+    its(:destroy) { should be_true }
   end
 end
 
 describe UuidArticle do
   let!(:article) { Fabricate :uuid_article }
-  let(:id) { article.id }
+  let!(:id) { article.id }
   let(:model) { UuidArticle }
 
   specify { model.primary_key.should == 'id' }
@@ -56,9 +57,16 @@ describe UuidArticle do
     specify { model.where(id: id.raw).first.should == article }
   end
 
-  context '.destroy' do
-    specify { article.delete.should be_true }
-    specify { article.destroy.should be_true }
+  context '#destroy' do
+    subject { article }
+    its(:delete) { should be_true }
+    its(:destroy) { should be_true }
+  end
+
+  context '#reload' do
+    subject { article }
+    its(:'reload.id') { should == id }
+    specify { subject.reload(:select => :another_uuid).id.should == id }
   end
 
   context 'typecasting' do
