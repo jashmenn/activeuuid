@@ -62,35 +62,28 @@ describe UuidArticle do
   end
 
   context 'typecasting' do
-    let(:input) { "e4618518-cb9f-11e1-aa7c-14dae903e06a" }
-    let(:uuid) { UUIDTools::UUID.parse input }
+    let(:uuid) { UUIDTools::UUID.random_create }
     let(:string) { uuid.to_s }
     context 'primary' do
-      before { article.id = input }
+      before { article.id = string }
       specify do
         article.id.should == uuid
-        article.id_before_type_cast.should == input
+        article.id_before_type_cast.should == string
       end
       specify do
-        article.id_before_type_cast.should == input
+        article.id_before_type_cast.should == string
         article.id.should == uuid
       end
-      # specify do
-      #   article.save
-      #   article.reload
-      #   article.id_before_type_cast.should == string
-      #   article.id.should == uuid
-      # end
     end
 
     context 'non-primary' do
-      before { article.another_uuid = input }
+      before { article.another_uuid = string }
       specify do
         article.another_uuid.should == uuid
-        article.another_uuid_before_type_cast.should == input
+        article.another_uuid_before_type_cast.should == string
       end
       specify do
-        article.another_uuid_before_type_cast.should == input
+        article.another_uuid_before_type_cast.should == string
         article.another_uuid.should == uuid
       end
       specify do

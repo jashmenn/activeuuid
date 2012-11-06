@@ -133,7 +133,7 @@ module ActiveUUID
 
     def generate_uuids_if_needed
       primary_key = self.class.primary_key
-      if self.class.uuid_columns.include?(primary_key)
+      if self.class.columns_hash[primary_key].uuid?
         send("#{primary_key}=", create_uuid) unless send("#{primary_key}?")
       end
     end
