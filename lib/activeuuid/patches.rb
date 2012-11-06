@@ -15,7 +15,7 @@ module ActiveUUID
 
       included do
         def uuid?
-          %w(binary(16) uuid).include? sql_type
+          sql_type == 'binary(16)'
         end
 
         def type_cast_with_uuid(value)
@@ -36,6 +36,16 @@ module ActiveUUID
 
         alias_method_chain :type_cast, :uuid
         alias_method_chain :type_cast_code, :uuid
+      end
+    end
+
+    module PostgreSQLColumn
+      extend ActiveSupport::Concern
+
+      included do
+        def uuid?
+          sql_type == 'uuid'
+        end
       end
     end
 
@@ -88,6 +98,8 @@ module ActiveUUID
       ActiveRecord::ConnectionAdapters::TableDefinition.send :include, Migrations if defined? ActiveRecord::ConnectionAdapters::TableDefinition
 
       ActiveRecord::ConnectionAdapters::Column.send :include, Column
+      ActiveRecord::ConnectionAdapters::PostgreSQLColumn.send :include, PostgreSQLColumn if defined? ActiveRecord::ConnectionAdapters::PostgreSQLColumn
+
       ActiveRecord::ConnectionAdapters::Mysql2Adapter.send :include, Quoting if defined? ActiveRecord::ConnectionAdapters::Mysql2Adapter
       ActiveRecord::ConnectionAdapters::SQLite3Adapter.send :include, Quoting if defined? ActiveRecord::ConnectionAdapters::SQLite3Adapter
       ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.send :include, PostgreSQLQuoting if defined? ActiveRecord::ConnectionAdapters::PostgreSQLAdapter

@@ -84,6 +84,7 @@ module ActiveUUID
       class_attribute :_uuid_generator, instance_writer: false
       self._uuid_generator = :random
 
+      singleton_class.alias_method_chain :instantiate, :uuid
       before_create :generate_uuids_if_needed
     end
 
@@ -101,6 +102,17 @@ module ActiveUUID
           ActiveUUID detects uuid columns independently.
           There is no more need to use uuid method.
         EOS
+      end
+
+      def instantiate_with_uuid(record)
+        uuid_columns.each do |uuid_column|
+          record[uuid_column] = UUIDTools::UUID.serialize(record[uuid_column]).to_s
+        end
+        instantiate_without_uuid(record)
+      end
+
+      def uuid_columns
+        @uuid_columns ||= columns.select(&:uuid?).map(&:name)
       end
     end
 
@@ -121,8 +133,8 @@ module ActiveUUID
 
     def generate_uuids_if_needed
       primary_key = self.class.primary_key
-      if self.class.columns_hash[primary_key].uuid?
-        self.send("#{primary_key}=", create_uuid) unless self.send("#{primary_key}?")
+      if self.class.uuid_columns.include?(primary_key)
+        send("#{primary_key}=", create_uuid) unless send("#{primary_key}?")
       end
     end
 

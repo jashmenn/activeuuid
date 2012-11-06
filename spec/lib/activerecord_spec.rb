@@ -62,27 +62,42 @@ describe UuidArticle do
   end
 
   context 'typecasting' do
+    let(:input) { "e4618518-cb9f-11e1-aa7c-14dae903e06a" }
+    let(:uuid) { UUIDTools::UUID.parse input }
+    let(:string) { uuid.to_s }
     context 'primary' do
-      before { article.id = '234' }
+      before { article.id = input }
       specify do
-        article.id.should == UUIDTools::UUID.parse_raw('234')
-        article.id_before_type_cast.should == '234'
+        article.id.should == uuid
+        article.id_before_type_cast.should == input
       end
       specify do
-        article.id_before_type_cast.should == '234'
-        article.id.should == UUIDTools::UUID.parse_raw('234')
+        article.id_before_type_cast.should == input
+        article.id.should == uuid
       end
+      # specify do
+      #   article.save
+      #   article.reload
+      #   article.id_before_type_cast.should == string
+      #   article.id.should == uuid
+      # end
     end
 
     context 'non-primary' do
-      before { article.another_uuid = '234' }
+      before { article.another_uuid = input }
       specify do
-        article.another_uuid.should == UUIDTools::UUID.parse_raw('234')
-        article.another_uuid_before_type_cast.should == '234'
+        article.another_uuid.should == uuid
+        article.another_uuid_before_type_cast.should == input
       end
       specify do
-        article.another_uuid_before_type_cast.should == '234'
-        article.another_uuid.should == UUIDTools::UUID.parse_raw('234')
+        article.another_uuid_before_type_cast.should == input
+        article.another_uuid.should == uuid
+      end
+      specify do
+        article.save
+        article.reload
+        article.another_uuid_before_type_cast.should == string
+        article.another_uuid.should == uuid
       end
     end
   end
