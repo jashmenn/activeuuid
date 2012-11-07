@@ -1,5 +1,69 @@
 require 'spec_helper'
 
+describe ActiveRecord::Base do
+  context '.connection' do
+    let!(:connection) { ActiveRecord::Base.connection }
+    let(:table_name) { :test_uuid_field_creation }
+    
+    before :each do
+      connection.create_table table_name
+      connection.table_exists?(table_name).should be_true
+    end
+    
+    after :each do
+      connection.drop_table table_name
+    end
+    
+    context '#add_column' do
+      it 'support adding uuid column' do
+        connection.add_column table_name, :uuid_col, :uuid
+        connection.column_exists?(table_name, :uuid_col).should be_true
+        columns = connection.columns(table_name)
+        col = (columns.select {|c| c.name.to_sym == :uuid_col }).first
+        col.should_not be_nil
+      
+        spec_for_adapter do |adapters|
+          adapters.sqlite { col.sql_type.should == 'uuid' }
+          adapters.mysql2 do
+            col.sql_type.should == 'binary(16)'
+            col.type.should == :binary
+            col.respond_to? :string_to_binary
+          end
+        end
+      end
+    end
+    
+    context '#change_column' do
+      before :each do
+        connection.add_column table_name, :binary_col, :binary, :limit => 16
+      end
+      
+      it 'support changing type from binary to uuid' do
+        col = (connection.columns(table_name).select {|c| c.name.to_sym == :binary_col}).first
+        col.should_not be_nil
+        spec_for_adapter do |adapters|
+          adapters.mysql2 do 
+            col.type.should == :binary
+            col.sql_type.should == 'tinyblob'
+          end
+        end
+        
+        connection.change_column table_name, :binary_col, :uuid
+        
+        col = (connection.columns(table_name).select {|c| c.name.to_sym == :binary_col}).first
+        col.should_not be_nil
+        spec_for_adapter do |adapters|
+          adapters.mysql2 do 
+            col.type.should == :binary
+            col.sql_type.should == 'binary(16)'
+          end
+        end
+      end
+    end
+    
+  end
+end
+
 describe Article do
   let!(:article) { Fabricate :article }
   let(:id) { article.id }
