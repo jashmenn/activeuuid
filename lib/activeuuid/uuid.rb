@@ -5,6 +5,9 @@ module UUIDTools
   class UUID
     alias_method :id, :raw
 
+    # duck typing activerecord 3.1 dirty hack )
+    def gsub *; self; end
+
     def quoted_id
       s = raw.unpack("H*")[0]
       "x'#{s}'"
@@ -18,8 +21,29 @@ module UUIDTools
       hexdigest.upcase
     end
 
-    # duck typing activerecord 3.1 dirty hack )
-    def gsub *; self; end
+    def self.serialize(value)
+      case value
+      when self
+        value
+      when String
+        parse_string value
+      else
+        nil
+      end
+    end
+
+  private
+
+    def self.parse_string(str)
+      return nil if str.length == 0
+      if str.length == 36
+        parse str
+      elsif str.length == 32
+        parse_hexdigest str
+      else
+        parse_raw str
+      end
+    end
   end
 end
 
@@ -52,89 +76,53 @@ module Arel
 end
 
 module ActiveUUID
-  class UUIDSerializer
-    def load(binary)
-      case binary
-      when UUIDTools::UUID
-        binary
-      when String
-        parse_string(binary)
-      else
-        nil
-      end
-    end
-
-    def dump(uuid)
-      case uuid
-      when UUIDTools::UUID
-        uuid.raw
-      when String
-        parse_string(uuid).try(:raw)
-      else
-        nil
-      end
-    end
-
-    private
-
-    def parse_string str
-      return nil if str.length == 0
-      if str.length == 36
-        UUIDTools::UUID.parse str
-      elsif str.length == 32
-        UUIDTools::UUID.parse_hexdigest str
-      else
-        UUIDTools::UUID.parse_raw str
-      end
-    end
-  end
-
   module UUID
     extend ActiveSupport::Concern
 
     included do
-      class_attribute :uuid_attributes, :instance_writer => true
-      uuids :id
+      class_attribute :_natural_key, instance_writer: false
+      class_attribute :_uuid_generator, instance_writer: false
+      self._uuid_generator = :random
+
+      singleton_class.alias_method_chain :instantiate, :uuid
       before_create :generate_uuids_if_needed
     end
 
     module ClassMethods
-      def natural_key_attributes
-        @_activeuuid_natural_key_attributes
-      end
-
       def natural_key(*attributes)
-        @_activeuuid_natural_key_attributes = attributes
+        self._natural_key = attributes
       end
 
-      def uuid_generator(generator_name=nil)
-        @_activeuuid_kind = generator_name if generator_name
-        @_activeuuid_kind || :random
+      def uuid_generator(generator_name)
+        self._uuid_generator = generator_name
       end
 
       def uuids(*attributes)
-        self.uuid_attributes = attributes.collect(&:intern).each do |attribute|
-          serialize attribute, ActiveUUID::UUIDSerializer.new
-          # serializing attributes on the fly
-          define_method "#{attribute}=" do |value|
-            write_attribute attribute, serialized_attributes[attribute.to_s].load(value)
-          end
+        ActiveSupport::Deprecation.warn <<-EOS
+          ActiveUUID detects uuid columns independently.
+          There is no more need to use uuid method.
+        EOS
+      end
+
+      def instantiate_with_uuid(record)
+        uuid_columns.each do |uuid_column|
+          record[uuid_column] = UUIDTools::UUID.serialize(record[uuid_column]).to_s if record[uuid_column]
         end
-         #class_eval <<-eos
-         #  # def #{@association_name}
-         #  #   @_#{@association_name} ||= self.class.associations[:#{@association_name}].new_proxy(self)
-         #  # end
-         #eos
+        instantiate_without_uuid(record)
+      end
+
+      def uuid_columns
+        @uuid_columns ||= columns.select(&:uuid?).map(&:name)
       end
     end
 
     def create_uuid
-      if nka = self.class.natural_key_attributes
+      if _natural_key
         # TODO if all the attributes return nil you might want to warn about this
-        chained = nka.collect{|a| self.send(a).to_s}.join("-")
+        chained = _natural_key.map { |attribute| self.send(attribute) }.join('-')
         UUIDTools::UUID.sha1_create(UUIDTools::UUID_OID_NAMESPACE, chained)
       else
-        case self.class.uuid_generator
+        case _uuid_generator
         when :random
           UUIDTools::UUID.random_create
         when :time
@@ -144,8 +132,9 @@ module ActiveUUID
     end
 
     def generate_uuids_if_needed
-      (uuid_attributes & [self.class.primary_key.intern]).each do |attr|
-        self.send("#{attr}=", create_uuid) unless self.send(attr)
+      primary_key = self.class.primary_key
+      if self.class.columns_hash[primary_key].uuid?
+        send("#{primary_key}=", create_uuid) unless send("#{primary_key}?")
       end
     end
 
