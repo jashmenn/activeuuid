@@ -1,3 +1,7 @@
+require 'active_record'
+require 'active_support/concern'
+
+
 module ActiveUUID
   module Patches
     module Migrations
@@ -48,6 +52,12 @@ module ActiveUUID
         alias_method_chain :type_cast, :visiting
       end
     end
+    
+    def self.update_native_database_types
+      if defined? ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter::NATIVE_DATABASE_TYPES
+        ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter::NATIVE_DATABASE_TYPES[:uuid] = { :name => 'binary', :limit => 16 }
+      end
+    end
 
     def self.apply!
       ActiveRecord::ConnectionAdapters::Table.send :include, Migrations if defined? ActiveRecord::ConnectionAdapters::Table
@@ -55,6 +65,7 @@ module ActiveUUID
       ActiveRecord::ConnectionAdapters::Mysql2Adapter.send :include, Quoting if defined? ActiveRecord::ConnectionAdapters::Mysql2Adapter
       ActiveRecord::ConnectionAdapters::SQLite3Adapter.send :include, Quoting if defined? ActiveRecord::ConnectionAdapters::SQLite3Adapter
       ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.send :include, PostgreSQLQuoting if defined? ActiveRecord::ConnectionAdapters::PostgreSQLAdapter
+      self.update_native_database_types
     end
   end
 end
