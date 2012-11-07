@@ -1,37 +1,29 @@
 require 'spec_helper'
 
 describe UUIDTools::UUID do
+  let(:input) { "e4618518-cb9f-11e1-aa7c-14dae903e06a" }
+  let(:hex) { "E4618518CB9F11E1AA7C14DAE903E06A" }
+  let(:uuid) { described_class.parse input }
 
-  before do
-    input = "e4618518-cb9f-11e1-aa7c-14dae903e06a"
-    @sql_out = "x'e4618518cb9f11e1aa7c14dae903e06a'"
-    @param_out = "E4618518CB9F11E1AA7C14DAE903E06A"
+  context 'instance methods' do
+    subject { uuid }
+    let(:sql_out) { "x'e4618518cb9f11e1aa7c14dae903e06a'" }
 
-    @uuid = UUIDTools::UUID.parse input
+    its(:quoted_id) {should == sql_out}
+    its(:as_json) {should == hex}
+    its(:to_param) {should == hex}
   end
 
-  it 'adds methods to the UUID class' do
-    [:quoted_id, :as_json, :to_param].each do |meth|
-      @uuid.should respond_to(meth)
-    end
-  end
+  describe '.serialize' do
+    subject { described_class }
+    let(:raw) { uuid.raw }
 
-  describe '#quoted_id' do
-    it 'returns the SQL binary representation for the uuid' do
-      @uuid.quoted_id.should eql(@sql_out)
-    end
+    specify { subject.serialize(uuid).should == uuid }
+    specify { subject.serialize(input).should == uuid }
+    specify { subject.serialize(hex).should == uuid }
+    specify { subject.serialize(raw).should == uuid }
+    specify { subject.serialize(nil).should be_nil }
+    specify { subject.serialize('').should be_nil }
+    specify { subject.serialize(5).should be_nil }
   end
-
-  describe '#as_json' do
-    it 'returns the uppercase hexdigest' do
-      @uuid.as_json.should eql(@param_out)
-    end
-  end
-
-  describe '#to_param' do
-    it 'also returns the uppercase hexdigest' do
-      @uuid.to_param.should eql(@param_out)
-    end
-  end
-
 end

@@ -9,27 +9,27 @@ rvm:
   #- rbx-19mode
 
 env:
-  - RAILS_VERSION='~>3.1.0'
-  - RAILS_VERSION='~>3.1.0' DB=mysql
-  - RAILS_VERSION='~>3.1.0' DB=postgresql
-  - RAILS_VERSION='~>3.2.0'
-  - RAILS_VERSION='~>3.2.0' DB=mysql
-  - RAILS_VERSION='~>3.2.0' DB=postgresql
-  - RAILS_VERSION=3-1-stable
-  - RAILS_VERSION=3-1-stable DB=mysql
-  - RAILS_VERSION=3-1-stable DB=postgresql
-  - RAILS_VERSION=3-2-stable
-  - RAILS_VERSION=3-2-stable DB=mysql
-  - RAILS_VERSION=3-2-stable DB=postgresql
-  - RAILS_VERSION=master
-  - RAILS_VERSION=master DB=mysql
-  - RAILS_VERSION=master DB=postgresql
+  - ACTIVERECORD_VERSION='~>3.1.0'
+  - ACTIVERECORD_VERSION='~>3.1.0' DB=mysql
+  - ACTIVERECORD_VERSION='~>3.1.0' DB=postgresql
+  - ACTIVERECORD_VERSION='~>3.2.0'
+  - ACTIVERECORD_VERSION='~>3.2.0' DB=mysql
+  - ACTIVERECORD_VERSION='~>3.2.0' DB=postgresql
+  - ACTIVERECORD_VERSION=3-1-stable
+  - ACTIVERECORD_VERSION=3-1-stable DB=mysql
+  - ACTIVERECORD_VERSION=3-1-stable DB=postgresql
+  - ACTIVERECORD_VERSION=3-2-stable
+  - ACTIVERECORD_VERSION=3-2-stable DB=mysql
+  - ACTIVERECORD_VERSION=3-2-stable DB=postgresql
+  - ACTIVERECORD_VERSION=master
+  - ACTIVERECORD_VERSION=master DB=mysql
+  - ACTIVERECORD_VERSION=master DB=postgresql
 
 matrix:
   exclude:
     - rvm: 1.9.2
-      env: RAILS_VERSION=master
+      env: ACTIVERECORD_VERSION=master
     - rvm: 1.9.2
-      env: RAILS_VERSION=master DB=mysql
+      env: ACTIVERECORD_VERSION=master DB=mysql
     - rvm: 1.9.2
-      env: RAILS_VERSION=master DB=postgresql
+      env: ACTIVERECORD_VERSION=master DB=postgresql

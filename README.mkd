@@ -1,6 +1,8 @@
+[![Build Status](https://secure.travis-ci.org/jashmenn/activeuuid.png)](http://travis-ci.org/jashmenn/activeuuid)
+
 # activeuuid
 
-Add `binary(16)` UUIDs to ActiveRecord. 
+Add `binary(16)` UUIDs to ActiveRecord.
 
 ## Example
 
@@ -48,20 +50,15 @@ require 'spec_helper'
 describe Email do
 
   context "when using uuid's as keys" do
-    before(:each) do
-      Email.delete_all
-      @guid = "1dd74dd0-d116-11e0-99c7-5ac5d975667e"
-      @e = Email.new(:subject => "hello", :body => "world") {|e| e.id = UUIDTools::UUID.parse(@guid) }
-      @e.save
-    end
+    let(:guid) { "1dd74dd0-d116-11e0-99c7-5ac5d975667e" }
+    let(:email) { Fabricate :email }
 
     it "the id guid should be equal to the uuid" do
-      @e.id.to_s.should eql(@guid)
+      email.id.to_s.should eql(guid)
     end
 
     it "should be able to find an email by the uuid" do
-      f = Email.find(UUIDTools::UUID.parse(@guid))
-      f.id.to_s.should eql(@guid)
+      Email.find(guid).id.to_s.should == guid
     end
 
   end
@@ -73,9 +70,9 @@ end
 From [2]:
 
 > [Here is a] UUID:  1e8ef774-581c-102c-bcfe-f1ab81872213
-> 
+>
 > A UUID like the one above is 36 characters long, including dashes.  If you store this VARCHAR(36), you're going to decrease compare performance dramatically.  This is your primary key, you don't want it to be slow.
-> 
+>
 > At its bit level, a UUID is 128 bits, which means it will fit into
 > 16 bytes, note this is not very human readable, but it will keep
 > storage low, and is only 4 times larger than a 32-bit int, or 2
@@ -98,10 +95,9 @@ application the keys are represented by a UUIDTools::UUID object.
 * more transparent support for natural and composite keys
 * support for MySQLs `INSERT ... ON DUPLICATE KEY UPDATE` syntax
 * support a primary column name other than `id`
-* work on other databases (Postgres, etc)
 * tests
 
-## Inspiration 
+## Inspiration
 James Golick's `friendly` is a great gem for NoSQL on MySQL. It's
 a great gateway drug to systems like Cassandra for teams that are
 already familiar with the ins-and-outs of MySQL.
@@ -114,35 +110,17 @@ Add this to your `Gemfile`
 
 Or get the code here: https://github.com/jashmenn/activeuuid
 
-## Notes
-
-### Fixtures
-
-You can use `activeuuid` in fixtures by using the `!!binary` directive in YAML.
-The trick is to base64 encode the raw bytes of the hexdigest.
-
-```yaml
-    devin_ifttt_new_tweet:         
-      id: !!binary "<%= Base64.encode64(UUIDTools::UUID.parse_hexdigest('2D79B402CBA811E1AA7C14DAE903E06A').raw) %>"
-      data:
-        user_id: 1
-        source_id: 1               
-        recipe_id: 1               
-        created_at: Mon, 09 Jul 2012 14:06:21 -0700 
-        body: Nice blog entry!
-```
 
 ## References
 * [1] http://bret.appspot.com/entry/how-friendfeed-uses-mysql
-* [2] http://kekoav.com/blog/36-computers/58-uuids-as-primary-keys-in-mysql.html 
+* [2] http://kekoav.com/blog/36-computers/58-uuids-as-primary-keys-in-mysql.html
 * [3] https://gist.github.com/937739
 * [4] http://www.codinghorror.com/blog/2007/03/primary-keys-ids-versus-guids.html
 * [5] http://krow.livejournal.com/497839.html
 * [6] https://github.com/jamesgolick/friendly
 
 ## Dependencies
-Rails ~> 3.1.0 - It uses the custom column serialization Aaron
-Patterson introduced in Rails 3.1.
+Rails ~> 3.1.0
 
 ## Author
 
