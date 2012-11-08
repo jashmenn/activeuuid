@@ -1,80 +1,83 @@
 require 'spec_helper'
 
-describe ActiveRecord::Base do
-  context '.connection' do
-    let!(:connection) { ActiveRecord::Base.connection }
-    let(:table_name) { :test_uuid_field_creation }
+# describe ActiveRecord::Base do
+#   context '.connection' do
+#     let!(:connection) { ActiveRecord::Base.connection }
+#     let(:table_name) { :test_uuid_field_creation }
     
-    before :each do
-      connection.create_table table_name
-      connection.table_exists?(table_name).should be_true
-    end
+#     before :each do
+#       connection.create_table table_name
+#       connection.table_exists?(table_name).should be_true
+#     end
     
-    after :each do
-      connection.drop_table table_name
-    end
+#     after :each do
+#       connection.drop_table table_name
+#     end
     
-    context '#add_column' do
-      it 'support adding uuid column' do
-        connection.add_column table_name, :uuid_col, :uuid
-        connection.column_exists?(table_name, :uuid_col).should be_true
-        columns = connection.columns(table_name)
-        col = (columns.select {|c| c.name.to_sym == :uuid_col }).first
-        col.should_not be_nil
+#     context '#add_column' do
+#       it 'support adding uuid column' do
+#         connection.add_column table_name, :uuid_col, :uuid
+#         connection.column_exists?(table_name, :uuid_col).should be_true
+#         columns = connection.columns(table_name)
+#         col = (columns.select {|c| c.name.to_sym == :uuid_col }).first
+#         col.should_not be_nil
       
-        spec_for_adapter do |adapters|
-          adapters.sqlite { col.sql_type.should == 'uuid' }
-          adapters.mysql2 do
-            col.sql_type.should == 'binary(16)'
-            col.type.should == :binary
-            col.respond_to? :string_to_binary
-          end
-        end
-      end
-    end
+#         spec_for_adapter do |adapters|
+#           adapters.sqlite { col.sql_type.should == 'uuid' }
+#           adapters.mysql2 do
+#             col.sql_type.should == 'binary(16)'
+#             col.type.should == :binary
+#             col.respond_to? :string_to_binary
+#           end
+#         end
+#       end
+#     end
     
-    context '#change_column' do
-      before :each do
-        connection.add_column table_name, :binary_col, :binary, :limit => 16
-      end
+#     context '#change_column' do
+#       before :each do
+#         connection.add_column table_name, :binary_col, :binary, :limit => 16
+#       end
       
-      it 'support changing type from binary to uuid' do
-        col = (connection.columns(table_name).select {|c| c.name.to_sym == :binary_col}).first
-        col.should_not be_nil
-        spec_for_adapter do |adapters|
-          adapters.mysql2 do 
-            col.type.should == :binary
-            col.sql_type.should == 'tinyblob'
-          end
-        end
+#       it 'support changing type from binary to uuid' do
+#         col = (connection.columns(table_name).select {|c| c.name.to_sym == :binary_col}).first
+#         col.should_not be_nil
+#         spec_for_adapter do |adapters|
+#           adapters.mysql2 do 
+#             col.type.should == :binary
+#             col.sql_type.should == 'tinyblob'
+#           end
+#         end
         
-        connection.change_column table_name, :binary_col, :uuid
+#         connection.change_column table_name, :binary_col, :uuid
         
-        col = (connection.columns(table_name).select {|c| c.name.to_sym == :binary_col}).first
-        col.should_not be_nil
-        spec_for_adapter do |adapters|
-          adapters.mysql2 do 
-            col.type.should == :binary
-            col.sql_type.should == 'binary(16)'
-          end
-        end
-      end
-    end
+#         col = (connection.columns(table_name).select {|c| c.name.to_sym == :binary_col}).first
+#         col.should_not be_nil
+#         spec_for_adapter do |adapters|
+#           adapters.mysql2 do 
+#             col.type.should == :binary
+#             col.sql_type.should == 'binary(16)'
+#           end
+#         end
+#       end
+#     end
     
-  end
-end
+#   end
+# end
 
 describe Article do
   let!(:article) { Fabricate :article }
   let(:id) { article.id }
   let(:model) { Article }
+  subject { model }
+
+  context 'model' do
+    its(:all) { should == [article] }
+    its(:first) { should == article }
+  end
 
   context 'existance' do
-    specify { article.id.should be_a Integer }
-    it "should create record" do
-      model.all.should == [article]
-      model.first.should == article
-    end
+    subject { article }
+    its(:id) { should be_a Integer }
   end
 
   context '.find' do
@@ -95,16 +98,18 @@ end
 describe UuidArticle do
   let!(:article) { Fabricate :uuid_article }
   let!(:id) { article.id }
-  let(:model) { UuidArticle }
+  let(:model) { described_class }
+  subject { model }
 
-  specify { model.primary_key.should == 'id' }
+  context 'model' do
+    its(:primary_key) { should == 'id' }
+    its(:all) { should == [article] }
+    its(:first) { should == article }
+  end
 
   context 'existance' do
-    specify { article.id.should be_a UUIDTools::UUID }
-    it "should create record" do
-      model.all.should == [article]
-      model.first.should == article
-    end
+    subject { article }
+    its(:id) { should be_a UUIDTools::UUID }
   end
 
   context '.find' do
@@ -131,6 +136,15 @@ describe UuidArticle do
     subject { article }
     its(:'reload.id') { should == id }
     specify { subject.reload(:select => :another_uuid).id.should == id }
+  end
+
+  context 'columns' do
+    [:id, :another_uuid].each do |column|
+      context column do
+        subject { model.columns_hash[column.to_s] }
+        its(:type) { should == :uuid }
+      end
+    end
   end
 
   context 'typecasting' do

@@ -112,7 +112,7 @@ module ActiveUUID
       end
 
       def uuid_columns
-        @uuid_columns ||= columns.select(&:uuid?).map(&:name)
+        @uuid_columns ||= columns.select { |c| c.type == :uuid }.map(&:name)
       end
     end
 
@@ -133,7 +133,7 @@ module ActiveUUID
 
     def generate_uuids_if_needed
       primary_key = self.class.primary_key
-      if self.class.columns_hash[primary_key].uuid?
+      if self.class.columns_hash[primary_key].type == :uuid
         send("#{primary_key}=", create_uuid) unless send("#{primary_key}?")
       end
     end
