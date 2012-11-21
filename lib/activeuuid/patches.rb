@@ -18,28 +18,24 @@ module ActiveUUID
       extend ActiveSupport::Concern
 
       included do
-        def uuid?
-          sql_type == 'binary(16)'
-        end
-
         def type_cast_with_uuid(value)
-          if uuid?
-            UUIDTools::UUID.serialize(value)
-          else
-            type_cast_without_uuid(value)
-          end
+          return UUIDTools::UUID.serialize(value) if type == :uuid
+          type_cast_without_uuid(value)
         end
 
         def type_cast_code_with_uuid(var_name)
-          if uuid?
-            "UUIDTools::UUID.serialize(#{var_name})"
-          else
-            type_cast_code_without_uuid(var_name)
-          end
+          return "UUIDTools::UUID.serialize(#{var_name})" if type == :uuid
+          type_cast_code_without_uuid(var_name)
+        end
+
+        def simplified_type_with_uuid(field_type)
+          return :uuid if field_type == 'binary(16)'
+          simplified_type_without_uuid(field_type)
         end
 
         alias_method_chain :type_cast, :uuid
         alias_method_chain :type_cast_code, :uuid
+        alias_method_chain :simplified_type, :uuid
       end
     end
 
@@ -47,9 +43,12 @@ module ActiveUUID
       extend ActiveSupport::Concern
 
       included do
-        def uuid?
-          sql_type == 'uuid'
+        def simplified_type_with_pguuid(field_type)
+          return :uuid if field_type == 'uuid'
+          simplified_type_without_pguuid(field_type)
         end
+
+        alias_method_chain :simplified_type, :pguuid
       end
     end
 
@@ -58,17 +57,22 @@ module ActiveUUID
 
       included do
         def quote_with_visiting(value, column = nil)
-          value = UUIDTools::UUID.serialize(value) if column && column.uuid?
+          value = UUIDTools::UUID.serialize(value) if column && column.type == :uuid
           quote_without_visiting(value, column)
         end
 
         def type_cast_with_visiting(value, column = nil)
-          value = UUIDTools::UUID.serialize(value) if column && column.uuid?
+          value = UUIDTools::UUID.serialize(value) if column && column.type == :uuid
           type_cast_without_visiting(value, column)
+        end
+
+        def native_database_types_with_uuid
+          @native_database_types ||= native_database_types_without_uuid.merge(uuid: { name: 'binary', limit: 16 })
         end
 
         alias_method_chain :quote, :visiting
         alias_method_chain :type_cast, :visiting
+        alias_method_chain :native_database_types, :uuid
       end
     end
 
@@ -77,7 +81,7 @@ module ActiveUUID
 
       included do
         def quote_with_visiting(value, column = nil)
-          if column && column.uuid?
+          if column && column.type == :uuid
             value = UUIDTools::UUID.serialize(value)
             value = value.to_s if value.is_a? UUIDTools::UUID
           end
@@ -85,21 +89,20 @@ module ActiveUUID
         end
 
         def type_cast_with_visiting(value, column = nil)
-          if column && column.uuid?
+          if column && column.type == :uuid
             value = UUIDTools::UUID.serialize(value)
             value = value.to_s if value.is_a? UUIDTools::UUID
           end
           type_cast_without_visiting(value, column)
         end
 
+        def native_database_types_with_pguuid
+          @native_database_types ||= native_database_types_without_pguuid.merge(uuid: { name: 'uuid' })
+        end
+
         alias_method_chain :quote, :visiting
         alias_method_chain :type_cast, :visiting
-      end
-    end
-    
-    def self.update_native_database_types
-      if defined? ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter::NATIVE_DATABASE_TYPES
-        ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter::NATIVE_DATABASE_TYPES[:uuid] = { :name => 'binary', :limit => 16 }
+        alias_method_chain :native_database_types, :pguuid
       end
     end
 
@@ -113,7 +116,6 @@ module ActiveUUID
       ActiveRecord::ConnectionAdapters::Mysql2Adapter.send :include, Quoting if defined? ActiveRecord::ConnectionAdapters::Mysql2Adapter
       ActiveRecord::ConnectionAdapters::SQLite3Adapter.send :include, Quoting if defined? ActiveRecord::ConnectionAdapters::SQLite3Adapter
       ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.send :include, PostgreSQLQuoting if defined? ActiveRecord::ConnectionAdapters::PostgreSQLAdapter
-      self.update_native_database_types
     end
   end
 end

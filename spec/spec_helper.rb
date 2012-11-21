@@ -13,6 +13,7 @@ ActiveRecord::Base.establish_connection(ENV["DB"] || "sqlite3")
 require 'activeuuid'
 
 ActiveRecord::Migrator.migrate(File.dirname(__FILE__) + "/support/migrate")
+ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, STDOUT)
 
 Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }
 Dir["#{File.dirname(__FILE__)}/fabricators/**/*.rb"].each { |f| require f }
@@ -38,7 +39,7 @@ RSpec.configure do |config|
   config.after(:each) do
     DatabaseCleaner.clean
   end
-  
+
   def spec_for_adapter(&block)
     switcher = ActiveUUID::SpecSupport::SpecForAdapter.new()
     yield switcher
