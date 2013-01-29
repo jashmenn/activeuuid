@@ -20,8 +20,8 @@ env:
   - DB=postgresql
 
 matrix:
+  allow_failures:
+    - gemfile: gemfiles/Gemfile.rails-head
   exclude:
     - rvm: 1.9.2
       gemfile: gemfiles/Gemfile.rails-head
-  allow_failures:
-    - gemfile: gemfiles/Gemfile.rails-head
