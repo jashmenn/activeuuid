@@ -3,7 +3,7 @@ sqlite3:
   database: ":memory:"
 postgresql:
   adapter: postgresql
-  username: postgres
+  host: localhost
   database: activeuuid_test
 mysql:
   adapter: mysql2

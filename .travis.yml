@@ -5,31 +5,23 @@ before_script:
 rvm:
   - 1.9.2
   - 1.9.3
-  #- ruby-head
-  #- rbx-19mode
+  - 2.0.0
+  - rbx-19mode
+
+gemfile:
+  - Gemfile
+  - gemfiles/Gemfile.rails-3-1
+  - gemfiles/Gemfile.rails-3-2
+  - gemfiles/Gemfile.rails-head
 
 env:
-  - ACTIVERECORD_VERSION='~>3.1.0'
-  - ACTIVERECORD_VERSION='~>3.1.0' DB=mysql
-  - ACTIVERECORD_VERSION='~>3.1.0' DB=postgresql
-  - ACTIVERECORD_VERSION='~>3.2.0'
-  - ACTIVERECORD_VERSION='~>3.2.0' DB=mysql
-  - ACTIVERECORD_VERSION='~>3.2.0' DB=postgresql
-  - ACTIVERECORD_VERSION=3-1-stable
-  - ACTIVERECORD_VERSION=3-1-stable DB=mysql
-  - ACTIVERECORD_VERSION=3-1-stable DB=postgresql
-  - ACTIVERECORD_VERSION=3-2-stable
-  - ACTIVERECORD_VERSION=3-2-stable DB=mysql
-  - ACTIVERECORD_VERSION=3-2-stable DB=postgresql
-  - ACTIVERECORD_VERSION=master
-  - ACTIVERECORD_VERSION=master DB=mysql
-  - ACTIVERECORD_VERSION=master DB=postgresql
+  - DB=sqlite3
+  - DB=mysql
+  - DB=postgresql
 
 matrix:
+  allow_failures:
+    - gemfile: gemfiles/Gemfile.rails-head
   exclude:
     - rvm: 1.9.2
-      env: ACTIVERECORD_VERSION=master
-    - rvm: 1.9.2
-      env: ACTIVERECORD_VERSION=master DB=mysql
-    - rvm: 1.9.2
-      env: ACTIVERECORD_VERSION=master DB=postgresql
+      gemfile: gemfiles/Gemfile.rails-head
