@@ -107,6 +107,10 @@ describe UuidArticle do
     its(:id) { should be_a UUIDTools::UUID }
   end
 
+  context 'interpolation' do
+    specify { model.where("id = :id", id: article.id) }
+  end
+
   context '.find' do
     specify { model.find(article).should == article }
     specify { model.find(id).should == article }
