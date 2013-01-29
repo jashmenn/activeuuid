@@ -1,6 +1,6 @@
 before_script:
   - mysql -e 'create database activeuuid_test;'
-  - psql -c 'create database activeuuid_test;'
+  - psql -c 'create database activeuuid_test;' -U postgres
 
 rvm:
   - 1.9.3
