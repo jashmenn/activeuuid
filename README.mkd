@@ -1,4 +1,4 @@
-[![Build Status](https://secure.travis-ci.org/jashmenn/activeuuid.png)](http://travis-ci.org/jashmenn/activeuuid)
+[![Build Status](https://travis-ci.org/jashmenn/activeuuid.png)](http://travis-ci.org/jashmenn/activeuuid)
 
 # activeuuid
 
