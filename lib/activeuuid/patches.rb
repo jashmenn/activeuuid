@@ -81,18 +81,14 @@ module ActiveUUID
 
       included do
         def quote_with_visiting(value, column = nil)
-          if column && column.type == :uuid
-            value = UUIDTools::UUID.serialize(value)
-            value = value.to_s if value.is_a? UUIDTools::UUID
-          end
+          value = UUIDTools::UUID.serialize(value) if column && column.type == :uuid
+          value = value.to_s if value.is_a? UUIDTools::UUID
           quote_without_visiting(value, column)
         end
 
         def type_cast_with_visiting(value, column = nil)
-          if column && column.type == :uuid
-            value = UUIDTools::UUID.serialize(value)
-            value = value.to_s if value.is_a? UUIDTools::UUID
-          end
+          value = UUIDTools::UUID.serialize(value) if column && column.type == :uuid
+          value = value.to_s if value.is_a? UUIDTools::UUID
           type_cast_without_visiting(value, column)
         end
 
