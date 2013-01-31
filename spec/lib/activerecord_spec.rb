@@ -99,9 +99,13 @@ describe UuidArticle do
   context 'new record' do
     let!(:article) { Fabricate.build :uuid_article }
     subject { article }
+    let(:uuid) { UUIDTools::UUID.random_create }
+    let(:string) { uuid.to_s }
+    before { subject.another_uuid = string }
 
     context 'validation' do
       its(:id) { should be_nil }
+      its(:another_uuid) { should be_a UUIDTools::UUID  }
       specify { subject.should be_new_record }
       specify { subject.should be_valid }
     end
