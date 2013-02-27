@@ -96,6 +96,28 @@ describe UuidArticle do
   let(:model) { described_class }
   subject { model }
 
+  context 'new record' do
+    let!(:article) { Fabricate.build :uuid_article }
+    subject { article }
+    let(:uuid) { UUIDTools::UUID.random_create }
+    let(:string) { uuid.to_s }
+    before { subject.another_uuid = string }
+
+    context 'validation' do
+      its(:id) { should be_nil }
+      its(:another_uuid) { should be_a UUIDTools::UUID  }
+      specify { subject.should be_new_record }
+      specify { subject.should be_valid }
+    end
+
+    context 'save without validation' do
+      before { subject.save(validate: false) }
+
+      its(:id) { should be_a UUIDTools::UUID }
+      specify { subject.should be_valid }
+    end
+  end
+
   context 'model' do
     its(:primary_key) { should == 'id' }
     its(:all) { should == [article] }
