@@ -41,6 +41,15 @@ class Email < ActiveRecord::Base
 end
 ```
 
+### specify a natural key for generating the UUID from a SHA1 sum
+```ruby
+class Email < ActiveRecord::Base
+  include ActiveUUID::UUID
+  natural_key :sender_id, :received_at
+  belongs_to :sender
+end
+```
+
 ### use it:
 Here are some example specs:
 
