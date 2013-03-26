@@ -81,6 +81,7 @@ module ActiveUUID
 
     included do
       class_attribute :_natural_key, instance_writer: false
+      class_attribute :_uuid_namespace, instance_writer: false
       class_attribute :_uuid_generator, instance_writer: false
       self._uuid_generator = :random
 
@@ -91,6 +92,11 @@ module ActiveUUID
     module ClassMethods
       def natural_key(*attributes)
         self._natural_key = attributes
+      end
+
+      def uuid_namespace(namespace)
+        namespace = UUIDTools::UUID.parse_string(namespace) unless namespace.is_a? UUIDTools::UUID
+        self._uuid_namespace = namespace
       end
 
       def uuid_generator(generator_name)
@@ -120,7 +126,7 @@ module ActiveUUID
       if _natural_key
         # TODO if all the attributes return nil you might want to warn about this
         chained = _natural_key.map { |attribute| self.send(attribute) }.join('-')
-        UUIDTools::UUID.sha1_create(UUIDTools::UUID_OID_NAMESPACE, chained)
+        UUIDTools::UUID.sha1_create(_uuid_namespace || UUIDTools::UUID_OID_NAMESPACE, chained)
       else
         case _uuid_generator
         when :random

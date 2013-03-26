@@ -41,6 +41,29 @@ class Email < ActiveRecord::Base
 end
 ```
 
+### specify a natural key for generating the UUID based on one or more columns
+```ruby
+class Email < ActiveRecord::Base
+  include ActiveUUID::UUID
+  natural_key :sender_id, :received_at
+  belongs_to :sender
+end
+```
+
+`natural_key` generates a SHA1-based UUID in the ISO OID namespace by default. [7]
+
+### specify a custom UUID namespace for the natural key
+```ruby
+class Email < ActiveRecord::Base
+  include ActiveUUID::UUID
+  uuid_namespace "1dd74dd0-d116-11e0-99c7-5ac5d975667e"
+  natural_key :sender_id, :received_at
+  belongs_to :sender
+end
+```
+
+`uuid_namespace` can either be a UUID in string format, or a UUIDTools::UUID object.
+
 ### use it:
 Here are some example specs:
 
@@ -118,6 +141,7 @@ Or get the code here: https://github.com/jashmenn/activeuuid
 * [4] http://www.codinghorror.com/blog/2007/03/primary-keys-ids-versus-guids.html
 * [5] http://krow.livejournal.com/497839.html
 * [6] https://github.com/jamesgolick/friendly
+* [7] http://tools.ietf.org/html/rfc4122.html#appendix-C
 
 ## Dependencies
 Rails ~> 3.1.0
