@@ -8,6 +8,10 @@ module UUIDTools
     # duck typing activerecord 3.1 dirty hack )
     def gsub *; self; end
 
+    def next
+      self.class.random_create
+    end
+
     def quoted_id
       s = raw.unpack("H*")[0]
       "x'#{s}'"

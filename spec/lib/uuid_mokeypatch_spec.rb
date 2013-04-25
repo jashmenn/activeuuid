@@ -12,6 +12,7 @@ describe UUIDTools::UUID do
     its(:quoted_id) {should == sql_out}
     its(:as_json) {should == hex}
     its(:to_param) {should == hex}
+    its(:next) {should be_a(described_class)}
   end
 
   describe '.serialize' do
