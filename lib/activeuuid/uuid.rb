@@ -65,6 +65,12 @@ module Arel
       end
     end
 
+    class WhereSql < Arel::Visitors::ToSql
+      def visit_UUIDTools_UUID(o)
+        o.quoted_id
+      end
+    end
+
     class SQLite < Arel::Visitors::ToSql
       def visit_UUIDTools_UUID(o)
         o.quoted_id
