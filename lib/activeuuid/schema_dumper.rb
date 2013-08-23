@@ -31,7 +31,6 @@ class ActiveRecord::SchemaDumper
     spec[:precision] = column.precision.inspect if column.precision
     spec[:scale]     = column.scale.inspect if column.scale
     spec[:null]      = 'false' unless column.null
-    puts "default: #{column.inspect} if #{column.has_default?}"
     spec[:default]   = default_string(column.default) if column.has_default?
     (spec.keys - [:name, :type]).each{ |k| spec[k].insert(0, "#{k.inspect} => ")}
     spec
