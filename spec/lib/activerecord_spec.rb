@@ -30,6 +30,7 @@ describe ActiveRecord::Base do
           adapters.sqlite3 { column.sql_type.should == 'binary(16)' }
           adapters.mysql2 { column.sql_type.should == 'binary(16)' }
           adapters.postgresql { column.sql_type.should == 'uuid' }
+          adapters.sqlserver { column.sql_type.should == 'uniqueidentifier' }
         end
       end
     end
@@ -52,6 +53,7 @@ describe ActiveRecord::Base do
           adapters.sqlite3 { column.sql_type.should == 'binary(16)' }
           adapters.mysql2 { column.sql_type.should == 'binary(16)' }
           adapters.postgresql { pending('postgresql can`t change column type to uuid') }
+          adapters.sqlserver { pending('sqlserver can`t change column type to uuid') }
         end
       end
     end
