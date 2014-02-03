@@ -8,7 +8,7 @@ module ActiveUUID
       def uuid(*column_names)
         options = column_names.extract_options!
         column_names.each do |name|
-          type = case @base.adapter_name.downcase
+          type = case ActiveRecord::Base.connection.adapter_name.downcase
             when 'postgresql' then 'uuid'
             when 'sqlserver' then 'uniqueidentifier'
             else 'binary(16)'
