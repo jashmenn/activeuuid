@@ -107,15 +107,18 @@ module ActiveUUID
     end
 
     def self.apply!
+      is_pg = defined? ActiveRecord::ConnectionAdapters::PostgreSQLColumn
+      has_uuid_type = is_pg and Rails.version[0].to_i >= 4
+
       ActiveRecord::ConnectionAdapters::Table.send :include, Migrations if defined? ActiveRecord::ConnectionAdapters::Table
       ActiveRecord::ConnectionAdapters::TableDefinition.send :include, Migrations if defined? ActiveRecord::ConnectionAdapters::TableDefinition
 
-      ActiveRecord::ConnectionAdapters::Column.send :include, Column
-      ActiveRecord::ConnectionAdapters::PostgreSQLColumn.send :include, PostgreSQLColumn if defined? ActiveRecord::ConnectionAdapters::PostgreSQLColumn and Rails.version[0].to_i < 4
+      ActiveRecord::ConnectionAdapters::Column.send :include, Column unless has_uuid_type
+      ActiveRecord::ConnectionAdapters::PostgreSQLColumn.send :include, PostgreSQLColumn if is_pg and !has_uuid_type
 
       ActiveRecord::ConnectionAdapters::Mysql2Adapter.send :include, Quoting if defined? ActiveRecord::ConnectionAdapters::Mysql2Adapter
       ActiveRecord::ConnectionAdapters::SQLite3Adapter.send :include, Quoting if defined? ActiveRecord::ConnectionAdapters::SQLite3Adapter
-      ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.send :include, PostgreSQLQuoting if defined? ActiveRecord::ConnectionAdapters::PostgreSQLAdapter and Rails.version[0].to_i < 4
+      ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.send :include, PostgreSQLQuoting if is_pg and !has_uuid_type
     end
   end
 end
