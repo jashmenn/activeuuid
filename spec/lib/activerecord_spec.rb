@@ -43,7 +43,7 @@ describe ActiveRecord::Base do
         spec_for_adapter do |adapters|
           adapters.sqlite3 { connection.change_column table_name, column_name, :uuid }
           adapters.mysql2 { connection.change_column table_name, column_name, :uuid }
-          # adapters.postgresql { connection.change_column table_name, column_name, :uuid }
+          adapters.postgresql { connection.change_column table_name, column_name, :uuid }
         end
       end
 

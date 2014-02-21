@@ -66,13 +66,13 @@ module Arel
     end
 
     class SQLite < Arel::Visitors::ToSql
-      def visit_UUIDTools_UUID(o)
+      def visit_UUIDTools_UUID(o, a)
         o.quoted_id
       end
     end
 
     class PostgreSQL < Arel::Visitors::ToSql
-      def visit_UUIDTools_UUID(o)
+      def visit_UUIDTools_UUID(o, a)
         "'#{o.to_s}'"
       end
     end
