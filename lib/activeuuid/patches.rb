@@ -29,7 +29,7 @@ module ActiveUUID
         end
 
         def simplified_type_with_uuid(field_type)
-          return :uuid if field_type == 'binary(16)' || field_type == 'binary(16,0)'
+          return :uuid if field_type == 'binary(16)' || field_type == 'binary(16,0)' || field_type == 'tinyblob'
           simplified_type_without_uuid(field_type)
         end
 
