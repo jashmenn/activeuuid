@@ -2,6 +2,7 @@ require "activeuuid/version"
 require 'activeuuid/patches'
 require 'activeuuid/association'
 require 'activeuuid/uuid'
+require 'activeuuid/schema_dumper'
 require 'activeuuid/railtie' if defined?(Rails::Railtie)
 
 module ActiveUUID
