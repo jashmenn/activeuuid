@@ -130,6 +130,11 @@ describe UuidArticle do
     specify { model.where(id: id.raw).first.should == article }
   end
 
+  context '.includes' do
+     specify { model.includes(:tags).first.tags.count.should == 5 }
+     specify { model.includes(:tags).first.tags.first.uuid_article.should == article }
+  end
+
   context '#destroy' do
     subject { article }
     its(:delete) { should be_true }
