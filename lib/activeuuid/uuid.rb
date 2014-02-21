@@ -90,7 +90,7 @@ module ActiveUUID
       self._uuid_generator = :random
 
       singleton_class.alias_method_chain :instantiate, :uuid
-      before_create :generate_uuids_if_needed
+      after_initialize :generate_uuids_if_needed
     end
 
     module ClassMethods
