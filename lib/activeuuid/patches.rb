@@ -34,7 +34,6 @@ module ActiveUUID
         end
 
         alias_method_chain :type_cast, :uuid
-        alias_method_chain :type_cast_code, :uuid
         alias_method_chain :simplified_type, :uuid
       end
     end
