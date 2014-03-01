@@ -43,7 +43,7 @@ describe ActiveRecord::Base do
         spec_for_adapter do |adapters|
           adapters.sqlite3 { connection.change_column table_name, column_name, :uuid }
           adapters.mysql2 { connection.change_column table_name, column_name, :uuid }
-          # adapters.postgresql { connection.change_column table_name, column_name, :uuid }
+          adapters.postgresql { connection.change_column table_name, column_name, :uuid }
         end
       end
 
@@ -128,6 +128,11 @@ describe UuidArticle do
     specify { model.where(id: id).first.should == article }
     specify { model.where(id: id.to_s).first.should == article }
     specify { model.where(id: id.raw).first.should == article }
+  end
+
+  context '.includes' do
+     specify { model.includes(:tags).first.tags.count.should == 5 }
+     specify { model.includes(:tags).first.tags.first.uuid_article.should == article }
   end
 
   context '#destroy' do

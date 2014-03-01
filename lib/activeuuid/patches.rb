@@ -8,9 +8,12 @@ module ActiveUUID
       def uuid(*column_names)
         options = column_names.extract_options!
         column_names.each do |name|
-          type = @base.adapter_name.downcase == 'postgresql' ? 'uuid' : 'binary(16)'
+          type = adapter_name.downcase == 'postgresql' ? 'uuid' : 'binary(16)'
           column(name, "#{type}#{' PRIMARY KEY' if options.delete(:primary_key)}", options)
         end
+      end
+      def adapter_name
+        defined?(@base) ? @base.adapter_name : ActiveRecord::Base.connection.adapter_name
       end
     end
 
@@ -29,7 +32,7 @@ module ActiveUUID
         end
 
         def simplified_type_with_uuid(field_type)
-          return :uuid if field_type == 'binary(16)' || field_type == 'binary(16,0)'
+          return :uuid if field_type == 'binary(16)' || field_type == 'binary(16,0)' || field_type == 'tinyblob'
           simplified_type_without_uuid(field_type)
         end
 

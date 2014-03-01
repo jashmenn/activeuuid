@@ -18,7 +18,7 @@ module UUIDTools
     end
 
     def as_json(options = nil)
-      hexdigest.upcase
+      hexdigest ? hexdigest.upcase : to_s
     end
 
     def to_param
@@ -54,25 +54,25 @@ end
 module Arel
   module Visitors
     class DepthFirst < Arel::Visitors::Visitor
-      def visit_UUIDTools_UUID(o)
+      def visit_UUIDTools_UUID(o, a)
         o.quoted_id
       end
     end
 
     class MySQL < Arel::Visitors::ToSql
-      def visit_UUIDTools_UUID(o)
+      def visit_UUIDTools_UUID(o, a)
         o.quoted_id
       end
     end
 
     class SQLite < Arel::Visitors::ToSql
-      def visit_UUIDTools_UUID(o)
+      def visit_UUIDTools_UUID(o, a)
         o.quoted_id
       end
     end
 
     class PostgreSQL < Arel::Visitors::ToSql
-      def visit_UUIDTools_UUID(o)
+      def visit_UUIDTools_UUID(o, a)
         "'#{o.to_s}'"
       end
     end
@@ -90,7 +90,7 @@ module ActiveUUID
       self._uuid_generator = :random
 
       singleton_class.alias_method_chain :instantiate, :uuid
-      before_create :generate_uuids_if_needed
+      after_initialize :generate_uuids_if_needed
     end
 
     module ClassMethods
@@ -114,7 +114,7 @@ module ActiveUUID
         EOS
       end
 
-      def instantiate_with_uuid(record)
+      def instantiate_with_uuid(record, column_types={})
         uuid_columns.each do |uuid_column|
           record[uuid_column] = UUIDTools::UUID.serialize(record[uuid_column]).to_s if record[uuid_column]
         end
@@ -143,7 +143,7 @@ module ActiveUUID
 
     def generate_uuids_if_needed
       primary_key = self.class.primary_key
-      if self.class.columns_hash[primary_key].type == :uuid
+      if primary_key && self.class.columns_hash[primary_key].type == :uuid
         send("#{primary_key}=", create_uuid) unless send("#{primary_key}?")
       end
     end
