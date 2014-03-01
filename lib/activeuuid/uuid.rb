@@ -18,7 +18,7 @@ module UUIDTools
     end
 
     def as_json(options = nil)
-      to_s
+      hexdigest ? hexdigest.upcase : to_s
     end
 
     def to_param
