@@ -8,7 +8,11 @@ module ActiveUUID
       def uuid(*column_names)
         options = column_names.extract_options!
         column_names.each do |name|
-          type = @base.adapter_name.downcase == 'postgresql' ? 'uuid' : 'binary(16)'
+          type = case ActiveRecord::Base.connection.adapter_name.downcase
+            when 'postgresql' then 'uuid'
+            when 'sqlserver' then 'uniqueidentifier'
+            else 'binary(16)'
+          end
           column(name, "#{type}#{' PRIMARY KEY' if options.delete(:primary_key)}", options)
         end
       end
@@ -34,7 +38,6 @@ module ActiveUUID
         end
 
         alias_method_chain :type_cast, :uuid
-        alias_method_chain :type_cast_code, :uuid
         alias_method_chain :simplified_type, :uuid
       end
     end
@@ -103,15 +106,18 @@ module ActiveUUID
     end
 
     def self.apply!
+      is_pg = defined? ActiveRecord::ConnectionAdapters::PostgreSQLColumn
+      has_uuid_type = is_pg and Rails.version[0].to_i >= 4
+
       ActiveRecord::ConnectionAdapters::Table.send :include, Migrations if defined? ActiveRecord::ConnectionAdapters::Table
       ActiveRecord::ConnectionAdapters::TableDefinition.send :include, Migrations if defined? ActiveRecord::ConnectionAdapters::TableDefinition
 
-      ActiveRecord::ConnectionAdapters::Column.send :include, Column
-      ActiveRecord::ConnectionAdapters::PostgreSQLColumn.send :include, PostgreSQLColumn if defined? ActiveRecord::ConnectionAdapters::PostgreSQLColumn
+      ActiveRecord::ConnectionAdapters::Column.send :include, Column unless has_uuid_type
+      ActiveRecord::ConnectionAdapters::PostgreSQLColumn.send :include, PostgreSQLColumn if is_pg and !has_uuid_type
 
       ActiveRecord::ConnectionAdapters::Mysql2Adapter.send :include, Quoting if defined? ActiveRecord::ConnectionAdapters::Mysql2Adapter
       ActiveRecord::ConnectionAdapters::SQLite3Adapter.send :include, Quoting if defined? ActiveRecord::ConnectionAdapters::SQLite3Adapter
-      ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.send :include, PostgreSQLQuoting if defined? ActiveRecord::ConnectionAdapters::PostgreSQLAdapter
+      ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.send :include, PostgreSQLQuoting if is_pg and !has_uuid_type
     end
   end
 end

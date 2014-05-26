@@ -6,7 +6,7 @@ module ActiveUUID::SpecSupport
       @specs = {}
     end
 
-    [:sqlite3, :mysql2, :postgresql].each do |name|
+    [:sqlite3, :mysql2, :postgresql, :sqlserver].each do |name|
       send :define_method, name do |&block|
         @specs[name] = block
       end

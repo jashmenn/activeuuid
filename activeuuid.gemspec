@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency "rake"
   s.add_development_dependency "rspec"
-  s.add_development_dependency "activesupport"
+  s.add_development_dependency "activesupport", ">= 4.0"
   s.add_development_dependency "database_cleaner"
   s.add_development_dependency "forgery"
   s.add_development_dependency "fabrication"
@@ -26,6 +26,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "pg"
   s.add_development_dependency "mysql2"
 
+  s.add_dependency "activerecord", ">= 4.0"
+
   s.add_runtime_dependency "uuidtools"
-  s.add_runtime_dependency "activerecord", '>= 3.1'
 end
