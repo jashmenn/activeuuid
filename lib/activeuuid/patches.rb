@@ -8,7 +8,7 @@ module ActiveUUID
       def uuid(*column_names)
         options = column_names.extract_options!
         column_names.each do |name|
-          type = @base.adapter_name.downcase == 'postgresql' ? 'uuid' : 'binary(16)'
+          type = ActiveRecord::Base.connection.adapter_name.downcase == 'postgresql' ? 'uuid' : 'binary(16)'
           column(name, "#{type}#{' PRIMARY KEY' if options.delete(:primary_key)}", options)
         end
       end
@@ -34,7 +34,7 @@ module ActiveUUID
         end
 
         alias_method_chain :type_cast, :uuid
-        alias_method_chain :type_cast_code, :uuid
+        alias_method_chain :type_cast_code, :uuid if ActiveRecord::VERSION::MAJOR < 4
         alias_method_chain :simplified_type, :uuid
       end
     end
@@ -43,6 +43,12 @@ module ActiveUUID
       extend ActiveSupport::Concern
 
       included do
+        def type_cast_with_uuid(value)
+          return UUIDTools::UUID.serialize(value) if type == :uuid
+          type_cast_without_uuid(value)
+        end
+        alias_method_chain :type_cast, :uuid if ActiveRecord::VERSION::MAJOR >= 4
+
         def simplified_type_with_pguuid(field_type)
           return :uuid if field_type == 'uuid'
           simplified_type_without_pguuid(field_type)
