@@ -43,6 +43,12 @@ module ActiveUUID
       extend ActiveSupport::Concern
 
       included do
+        def type_cast_with_uuid(value)
+          return UUIDTools::UUID.serialize(value) if type == :uuid
+          type_cast_without_uuid(value)
+        end
+        alias_method_chain :type_cast, :uuid if ActiveRecord::VERSION::MAJOR >= 4
+
         def simplified_type_with_pguuid(field_type)
           return :uuid if field_type == 'uuid'
           simplified_type_without_pguuid(field_type)
