@@ -146,7 +146,18 @@ Or get the code here: https://github.com/jashmenn/activeuuid
 ## Dependencies
 Rails ~> 3.1.0
 
-## Author
+## Authors
 
-Nate Murray <nate@xcombinator.com>
+- Nate Murray
+- pyromaniac
+- Andrew Kane
+- Devin Foley
+- Arkadiy Zabazhanov
+- Jean-Denis Koeck
+- Florian Staudacher
+- Schuyler Erle
+- Florian Schwab
+- Thomas Guillory
+- Daniel Blanco Rojas
+- Olivier Amblet
 
