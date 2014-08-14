@@ -18,6 +18,7 @@ env:
   - DB=sqlite3
   - DB=mysql
   - DB=postgresql
+  - DB=jdbc-mysql
 
 matrix:
   allow_failures:
