@@ -6,6 +6,7 @@ rvm:
   - 1.9.3
   - 2.0.0
   - rbx-2
+  - jruby
 
 gemfile:
   - Gemfile
@@ -18,7 +19,6 @@ env:
   - DB=sqlite3
   - DB=mysql
   - DB=postgresql
-  - DB=jdbc-mysql
 
 matrix:
   allow_failures:
