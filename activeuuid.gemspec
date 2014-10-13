@@ -23,9 +23,15 @@ Gem::Specification.new do |s|
   s.add_development_dependency "database_cleaner"
   s.add_development_dependency "forgery"
   s.add_development_dependency "fabrication"
-  s.add_development_dependency "sqlite3"
-  s.add_development_dependency "pg"
-  s.add_development_dependency "mysql2"
+  if RUBY_ENGINE == 'ruby'
+    s.add_development_dependency "sqlite3"
+    s.add_development_dependency "pg"
+    s.add_development_dependency "mysql2"
+  elsif RUBY_ENGINE == 'jruby'
+    s.add_development_dependency "activerecord-jdbcsqlite3-adapter"
+    s.add_development_dependency "activerecord-jdbcpostgresql-adapter"
+    s.add_development_dependency "activerecord-jdbcmysql-adapter"
+  end
 
   s.add_runtime_dependency "uuidtools"
   s.add_runtime_dependency "activerecord", '>= 3.1'
