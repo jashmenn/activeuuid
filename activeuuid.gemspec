@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "fabrication"
   if RUBY_ENGINE == 'ruby'
     s.add_development_dependency "sqlite3"
-    # s.add_development_dependency "pg"
+    s.add_development_dependency "pg"
     s.add_development_dependency "mysql2"
   elsif RUBY_ENGINE == 'jruby'
     s.add_development_dependency "activerecord-jdbcsqlite3-adapter"
