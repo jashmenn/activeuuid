@@ -1,6 +1,36 @@
 require 'active_record'
 require 'active_support/concern'
 
+if ActiveRecord::VERSION::MAJOR == 4 and ActiveRecord::VERSION::MINOR == 2
+  module ActiveRecord
+    module Type
+      class UUID < Binary # :nodoc:
+        def type
+          :uuid
+        end
+
+        def cast_value(value)
+          UUIDTools::UUID.serialize(value)
+        end
+      end
+    end
+  end
+
+  module ActiveRecord
+    module ConnectionAdapters
+      module PostgreSQL
+        module OID # :nodoc:
+          class Uuid < Type::Value # :nodoc:
+            def type_cast_from_user(value)
+              UUIDTools::UUID.serialize(value) if value
+            end
+            alias_method :type_cast_from_database, :type_cast_from_user
+          end
+        end
+      end
+    end
+  end
+end
 
 module ActiveUUID
   module Patches
@@ -108,12 +138,30 @@ module ActiveUUID
       end
     end
 
+    module AbstractAdapter
+      extend ActiveSupport::Concern
+
+      included do
+        def initialize_type_map_with_uuid(m)
+          initialize_type_map_without_uuid(m)
+          register_class_with_limit m, /binary\(16(,0)?\)/i, ::ActiveRecord::Type::UUID
+        end
+
+        alias_method_chain :initialize_type_map, :uuid
+      end
+    end
+
     def self.apply!
       ActiveRecord::ConnectionAdapters::Table.send :include, Migrations if defined? ActiveRecord::ConnectionAdapters::Table
       ActiveRecord::ConnectionAdapters::TableDefinition.send :include, Migrations if defined? ActiveRecord::ConnectionAdapters::TableDefinition
 
-      ActiveRecord::ConnectionAdapters::Column.send :include, Column
-      ActiveRecord::ConnectionAdapters::PostgreSQLColumn.send :include, PostgreSQLColumn if defined? ActiveRecord::ConnectionAdapters::PostgreSQLColumn
+      if ActiveRecord::VERSION::MAJOR == 4 and ActiveRecord::VERSION::MINOR == 2
+        ActiveRecord::ConnectionAdapters::Mysql2Adapter.send :include, AbstractAdapter if defined? ActiveRecord::ConnectionAdapters::Mysql2Adapter
+        ActiveRecord::ConnectionAdapters::SQLite3Adapter.send :include, AbstractAdapter if defined? ActiveRecord::ConnectionAdapters::SQLite3Adapter
+      else
+        ActiveRecord::ConnectionAdapters::Column.send :include, Column
+        ActiveRecord::ConnectionAdapters::PostgreSQLColumn.send :include, PostgreSQLColumn if defined? ActiveRecord::ConnectionAdapters::PostgreSQLColumn
+      end
 
       ActiveRecord::ConnectionAdapters::Mysql2Adapter.send :include, Quoting if defined? ActiveRecord::ConnectionAdapters::Mysql2Adapter
       ActiveRecord::ConnectionAdapters::SQLite3Adapter.send :include, Quoting if defined? ActiveRecord::ConnectionAdapters::SQLite3Adapter
