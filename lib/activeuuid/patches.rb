@@ -122,10 +122,10 @@ module ActiveUUID
           quote_without_visiting(value, column)
         end
 
-        def type_cast_with_visiting(value, column = nil)
+        def type_cast_with_visiting(value, column = nil, *args)
           value = UUIDTools::UUID.serialize(value) if column && column.type == :uuid
           value = value.to_s if value.is_a? UUIDTools::UUID
-          type_cast_without_visiting(value, column)
+          type_cast_without_visiting(value, column, *args)
         end
 
         def native_database_types_with_pguuid
