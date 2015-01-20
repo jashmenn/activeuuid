@@ -174,6 +174,19 @@ module ActiveUUID
         end
 
         alias_method_chain :initialize_type_map, :uuid
+    end
+
+    module HasAndBelongsToManyAssociationPreloader
+      extend ActiveSupport::Concern
+
+      included do
+        def records_for_with_conversion(ids)
+          records_for_without_conversion(ids).each do |record|
+            record[association_key_name] = UUIDTools::UUID.parse_raw(record[association_key_name])
+          end
+        end
+
+        alias_method_chain :records_for, :conversion
       end
     end
 
@@ -194,6 +207,8 @@ module ActiveUUID
       ActiveRecord::ConnectionAdapters::Mysql2Adapter.send :include, Quoting if defined? ActiveRecord::ConnectionAdapters::Mysql2Adapter
       ActiveRecord::ConnectionAdapters::SQLite3Adapter.send :include, Quoting if defined? ActiveRecord::ConnectionAdapters::SQLite3Adapter
       ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.send :include, PostgreSQLQuoting if defined? ActiveRecord::ConnectionAdapters::PostgreSQLAdapter
+
+      ActiveRecord::Associations::Preloader::HasAndBelongsToMany.send :include, HasAndBelongsToManyAssociationPreloader
     end
   end
 end
