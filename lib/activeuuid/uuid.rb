@@ -29,6 +29,10 @@ module UUIDTools
       to_s
     end
 
+    def ==(other)
+      self.to_s == other.to_s
+    end
+
     def self.serialize(value)
       case value
       when self
