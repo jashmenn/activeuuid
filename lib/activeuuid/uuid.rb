@@ -36,6 +36,10 @@ module UUIDTools
       end
     end
 
+    def bytesize
+      16
+    end
+
   private
 
     def self.parse_string(str)
