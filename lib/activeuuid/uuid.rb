@@ -8,6 +8,10 @@ module UUIDTools
     # duck typing activerecord 3.1 dirty hack )
     def gsub *; self; end
 
+    def ==(another_uuid)
+      self.to_s == another_uuid.to_s
+    end
+
     def next
       self.class.random_create
     end
