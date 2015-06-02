@@ -10,8 +10,8 @@ describe UUIDTools::UUID do
     let(:sql_out) { "x'e4618518cb9f11e1aa7c14dae903e06a'" }
 
     its(:quoted_id) {should == sql_out}
-    its(:as_json) {should == hex}
-    its(:to_param) {should == hex}
+    its(:as_json) {should == uuid.to_s}
+    its(:to_param) {should == uuid.to_s}
     its(:next) {should be_a(described_class)}
   end
 
