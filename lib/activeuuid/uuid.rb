@@ -8,6 +8,10 @@ module UUIDTools
     # duck typing activerecord 3.1 dirty hack )
     def gsub *; self; end
 
+    def ==(another_uuid)
+      self.to_s == another_uuid.to_s
+    end
+
     def next
       self.class.random_create
     end
@@ -18,11 +22,11 @@ module UUIDTools
     end
 
     def as_json(options = nil)
-      hexdigest.upcase
+      to_s
     end
 
     def to_param
-      hexdigest.upcase
+      to_s
     end
 
     def self.serialize(value)
