@@ -8,6 +8,7 @@ rvm:
   - 2.1.5
   - 2.2.0
   - rbx-2
+  - jruby
 
 gemfile:
   - Gemfile
@@ -31,3 +32,16 @@ matrix:
       gemfile: gemfiles/Gemfile.rails-3-1
     - rvm: 2.2.0
       gemfile: gemfiles/Gemfile.rails-3-2
+    - rvm: jruby
+      gemfile: gemfiles/Gemfile.rails-3-1
+      env: DB=postgresql
+    - rvm: jruby
+      gemfile: gemfiles/Gemfile.rails-3-2
+      env: DB=postgresql
+    - rvm: jruby
+      gemfile: gemfiles/Gemfile.rails-4-0
+      env: DB=postgresql
+    - rvm: jruby
+      gemfile: gemfiles/Gemfile.rails-4-1
+      env: DB=postgresql
+
