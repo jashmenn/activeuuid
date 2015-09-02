@@ -1,1 +1,1 @@
-rvm use 2.1.5@activeuuid --create
+rvm use 2.2@activeuuid --create
