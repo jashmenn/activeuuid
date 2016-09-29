@@ -17,6 +17,7 @@ gemfile:
   - gemfiles/Gemfile.rails-4-0
   - gemfiles/Gemfile.rails-4-1
   - gemfiles/Gemfile.rails-4-2
+  - gemfiles/Gemfile.rails-5-0
   - gemfiles/Gemfile.rails-head
 
 env:
@@ -44,4 +45,3 @@ matrix:
     - rvm: jruby
       gemfile: gemfiles/Gemfile.rails-4-1
       env: DB=postgresql
-

@@ -1,6 +1,26 @@
 require 'active_record'
 require 'active_support/concern'
 
+if ActiveRecord::VERSION::MAJOR == 5
+  module ActiveModel
+    module Type
+      class UUID < Binary # :nodoc:
+        def type
+          :uuid
+        end
+
+        def serialize(value)
+          UUIDTools::UUID.serialize(value)
+        end
+
+        def cast_value(value)
+          UUIDTools::UUID.serialize(value)
+        end
+      end
+    end
+  end
+end
+
 if ActiveRecord::VERSION::MAJOR == 4 and ActiveRecord::VERSION::MINOR == 2
   module ActiveRecord
     module Type
@@ -177,11 +197,21 @@ module ActiveUUID
       end
     end
 
+    module AdapterWithBinary16ToUUIDMapping
+      def initialize_type_map(m)
+        super(m)
+        register_class_with_limit m, /binary\(16(,0)?\)/i, ::ActiveModel::Type::UUID
+      end
+    end
+
     def self.apply!
       ActiveRecord::ConnectionAdapters::Table.send :include, Migrations if defined? ActiveRecord::ConnectionAdapters::Table
       ActiveRecord::ConnectionAdapters::TableDefinition.send :include, Migrations if defined? ActiveRecord::ConnectionAdapters::TableDefinition
 
-      if ActiveRecord::VERSION::MAJOR == 4 and ActiveRecord::VERSION::MINOR == 2
+      if ActiveRecord::VERSION::MAJOR == 5
+        ActiveRecord::ConnectionAdapters::Mysql2Adapter.send :prepend, AdapterWithBinary16ToUUIDMapping if defined? ActiveRecord::ConnectionAdapters::Mysql2Adapter
+        ActiveRecord::ConnectionAdapters::SQLite3Adapter.send :prepend, AdapterWithBinary16ToUUIDMapping if defined? ActiveRecord::ConnectionAdapters::SQLite3Adapter
+      elsif ActiveRecord::VERSION::MAJOR == 4 and ActiveRecord::VERSION::MINOR == 2
         ActiveRecord::ConnectionAdapters::Mysql2Adapter.send :include, AbstractAdapter if defined? ActiveRecord::ConnectionAdapters::Mysql2Adapter
         ActiveRecord::ConnectionAdapters::SQLite3Adapter.send :include, AbstractAdapter if defined? ActiveRecord::ConnectionAdapters::SQLite3Adapter
       else
