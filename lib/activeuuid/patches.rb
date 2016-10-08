@@ -1,12 +1,18 @@
 require 'active_record'
 require 'active_support/concern'
 
-if ActiveRecord::VERSION::MAJOR == 4 and ActiveRecord::VERSION::MINOR == 2
+if (ActiveRecord::VERSION::MAJOR == 4 && ActiveRecord::VERSION::MINOR == 2) ||
+    (ActiveRecord::VERSION::MAJOR == 5 && ActiveRecord::VERSION::MINOR == 0)
   module ActiveRecord
     module Type
       class UUID < Binary # :nodoc:
         def type
           :uuid
+        end
+
+        def serialize(value)
+          return if value.nil?
+          UUIDTools::UUID.serialize(value)
         end
 
         def cast_value(value)
@@ -165,15 +171,23 @@ module ActiveUUID
     end
 
     module AbstractAdapter
-      extend ActiveSupport::Concern
+      def initialize_type_map(m)
+        super
 
-      included do
-        def initialize_type_map_with_uuid(m)
-          initialize_type_map_without_uuid(m)
-          register_class_with_limit m, /binary\(16(,0)?\)/i, ::ActiveRecord::Type::UUID
-        end
+        register_class_with_limit m, /binary\(16(,0)?\)/i, ::ActiveRecord::Type::UUID
+      end
 
-        alias_method_chain :initialize_type_map, :uuid
+      def type_to_sql(type, limit = nil, precision = nil, scale = nil, unsigned = nil)
+        type.to_s == 'uuid' ? 'binary(16)' : super
+      end
+    end
+
+    module ConnectionHandling
+      def establish_connection(_ = nil)
+        super
+
+        ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter.prepend AbstractAdapter if defined? ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter
+        ActiveRecord::ConnectionAdapters::SQLite3Adapter.prepend AbstractAdapter if defined? ActiveRecord::ConnectionAdapters::SQLite3Adapter
       end
     end
 
@@ -181,8 +195,10 @@ module ActiveUUID
       ActiveRecord::ConnectionAdapters::Table.send :include, Migrations if defined? ActiveRecord::ConnectionAdapters::Table
       ActiveRecord::ConnectionAdapters::TableDefinition.send :include, Migrations if defined? ActiveRecord::ConnectionAdapters::TableDefinition
 
-      if ActiveRecord::VERSION::MAJOR == 4 and ActiveRecord::VERSION::MINOR == 2
-        ActiveRecord::ConnectionAdapters::Mysql2Adapter.send :include, AbstractAdapter if defined? ActiveRecord::ConnectionAdapters::Mysql2Adapter
+      if ActiveRecord::VERSION::MAJOR == 5 && ActiveRecord::VERSION::MINOR == 0
+        ActiveRecord::Base.singleton_class.prepend ConnectionHandling
+      elsif ActiveRecord::VERSION::MAJOR == 4 && ActiveRecord::VERSION::MINOR == 2
+        ActiveRecord::ConnectionAdapters::Mysql2Adapter.prepend AbstractAdapter if defined? ActiveRecord::ConnectionAdapters::Mysql2Adapter
         ActiveRecord::ConnectionAdapters::SQLite3Adapter.send :include, AbstractAdapter if defined? ActiveRecord::ConnectionAdapters::SQLite3Adapter
       else
         ActiveRecord::ConnectionAdapters::Column.send :include, Column

@@ -8,10 +8,10 @@ require 'active_support/all'
 
 ActiveRecord::Base.logger = Logger.new(File.dirname(__FILE__) + "/debug.log")
 ActiveRecord::Base.configurations = YAML::load(File.read(File.dirname(__FILE__) + "/support/database.yml"))
-ActiveRecord::Base.establish_connection((ENV["DB"] || "sqlite3").to_sym)
 
 require 'activeuuid'
 
+ActiveRecord::Base.establish_connection((ENV["DB"] || "sqlite3").to_sym)
 ActiveRecord::Migrator.migrate(File.dirname(__FILE__) + "/support/migrate")
 ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, STDOUT)
 
