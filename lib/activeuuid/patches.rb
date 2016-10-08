@@ -170,13 +170,15 @@ module ActiveUUID
       end
     end
 
-    module AbstractAdapter
+    module TypeMapOverride
       def initialize_type_map(m)
         super
 
         register_class_with_limit m, /binary\(16(,0)?\)/i, ::ActiveRecord::Type::UUID
       end
+    end
 
+    module MysqlTypeToSqlOverride
       def type_to_sql(type, limit = nil, precision = nil, scale = nil, unsigned = nil)
         type.to_s == 'uuid' ? 'binary(16)' : super
       end
@@ -186,8 +188,12 @@ module ActiveUUID
       def establish_connection(_ = nil)
         super
 
-        ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter.prepend AbstractAdapter if defined? ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter
-        ActiveRecord::ConnectionAdapters::SQLite3Adapter.prepend AbstractAdapter if defined? ActiveRecord::ConnectionAdapters::SQLite3Adapter
+        if defined? ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter
+          ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter.prepend TypeMapOverride
+          ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter.prepend MysqlTypeToSqlOverride
+        end
+
+        ActiveRecord::ConnectionAdapters::SQLite3Adapter.prepend TypeMapOverride if defined? ActiveRecord::ConnectionAdapters::SQLite3Adapter
       end
     end
 
@@ -198,8 +204,8 @@ module ActiveUUID
       if ActiveRecord::VERSION::MAJOR == 5 && ActiveRecord::VERSION::MINOR == 0
         ActiveRecord::Base.singleton_class.prepend ConnectionHandling
       elsif ActiveRecord::VERSION::MAJOR == 4 && ActiveRecord::VERSION::MINOR == 2
-        ActiveRecord::ConnectionAdapters::Mysql2Adapter.prepend AbstractAdapter if defined? ActiveRecord::ConnectionAdapters::Mysql2Adapter
-        ActiveRecord::ConnectionAdapters::SQLite3Adapter.send :include, AbstractAdapter if defined? ActiveRecord::ConnectionAdapters::SQLite3Adapter
+        ActiveRecord::ConnectionAdapters::Mysql2Adapter.prepend TypeMapOverride if defined? ActiveRecord::ConnectionAdapters::Mysql2Adapter
+        ActiveRecord::ConnectionAdapters::SQLite3Adapter.send :include, TypeMapOverride if defined? ActiveRecord::ConnectionAdapters::SQLite3Adapter
       else
         ActiveRecord::ConnectionAdapters::Column.send :include, Column
         ActiveRecord::ConnectionAdapters::PostgreSQLColumn.send :include, PostgreSQLColumn if defined? ActiveRecord::ConnectionAdapters::PostgreSQLColumn
