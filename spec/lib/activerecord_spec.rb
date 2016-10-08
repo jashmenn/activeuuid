@@ -6,7 +6,7 @@ describe ActiveRecord::Base do
     let(:table_name) { :test_uuid_field_creation }
 
     before do
-      connection.drop_table(table_name) if connection.table_exists?(table_name)
+      connection.drop_table(table_name) if connection.data_source_exists?(table_name)
       connection.create_table(table_name)
     end
 
@@ -14,7 +14,7 @@ describe ActiveRecord::Base do
       connection.drop_table table_name
     end
 
-    specify { connection.table_exists?(table_name).should be_truthy }
+    specify { connection.data_source_exists?(table_name).should be_truthy }
 
     context '#add_column' do
       let(:column_name) { :uuid_column }
@@ -218,4 +218,3 @@ describe UuidArticleWithNamespace do
     its(:id) { should == uuid }
   end
 end
-
