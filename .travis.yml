@@ -7,6 +7,7 @@ rvm:
   - 2.0.0
   - 2.1.5
   - 2.2.0
+  - 2.3.1
   - rbx-2
   - jruby
 
@@ -17,6 +18,7 @@ gemfile:
   - gemfiles/Gemfile.rails-4-0
   - gemfiles/Gemfile.rails-4-1
   - gemfiles/Gemfile.rails-4-2
+  - gemfiles/Gemfile.rails-5-0
   - gemfiles/Gemfile.rails-head
 
 env:
@@ -30,7 +32,11 @@ matrix:
   exclude:
     - rvm: 2.2.0
       gemfile: gemfiles/Gemfile.rails-3-1
+    - rvm: 2.3.1
+      gemfile: gemfiles/Gemfile.rails-3-1
     - rvm: 2.2.0
+      gemfile: gemfiles/Gemfile.rails-3-2
+    - rvm: 2.3.1
       gemfile: gemfiles/Gemfile.rails-3-2
     - rvm: jruby
       gemfile: gemfiles/Gemfile.rails-3-1
@@ -44,4 +50,11 @@ matrix:
     - rvm: jruby
       gemfile: gemfiles/Gemfile.rails-4-1
       env: DB=postgresql
-
+    - rvm: jruby
+      gemfile: gemfiles/Gemfile.rails-5-0
+      env: DB=postgresql
+    - rvm: 1.9.3
+      gemfile: gemfiles/Gemfile.rails-5-0
+    - rvm: jruby
+      gemfile: gemfiles/Gemfile.rails-5-0
+      env: DB=postgresql
