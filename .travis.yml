@@ -52,6 +52,3 @@ matrix:
     - rvm: jruby
       gemfile: gemfiles/Gemfile.rails-5-0
       env: DB=postgresql
-    - rvm: jruby
-      gemfile: gemfiles/Gemfile.rails-5-0
-      env: DB=postgresql
