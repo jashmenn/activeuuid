@@ -60,3 +60,10 @@ matrix:
     - rvm: jruby
       gemfile: gemfiles/Gemfile.rails-5-0
       env: DB=postgresql
+    - rvm: 2.0.0
+      gemfile: gemfiles/Gemfile.rails-head
+    - rvm: 2.1.10
+      gemfile: gemfiles/Gemfile.rails-head
+    - rvm: jruby
+      gemfile: gemfiles/Gemfile.rails-head
+      env: DB=postgresql
