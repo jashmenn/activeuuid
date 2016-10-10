@@ -4,8 +4,8 @@ before_script:
 
 rvm:
   - 2.0.0
-  - 2.1.5
-  - 2.2.0
+  - 2.1.10
+  - 2.2.5
   - 2.3.1
   - rbx-2
   - jruby
@@ -29,17 +29,21 @@ matrix:
   allow_failures:
     - gemfile: gemfiles/Gemfile.rails-head
   exclude:
-    - rvm: 2.2.0
+    - rvm: 2.0.0
+      gemfile: Gemfile
+    - rvm: 2.1.10
+      gemfile: Gemfile
+    - rvm: 2.2.5
       gemfile: gemfiles/Gemfile.rails-3-1
     - rvm: 2.3.1
       gemfile: gemfiles/Gemfile.rails-3-1
-    - rvm: 2.2.0
-      gemfile: gemfiles/Gemfile.rails-3-2
-    - rvm: 2.3.1
-      gemfile: gemfiles/Gemfile.rails-3-2
     - rvm: jruby
       gemfile: gemfiles/Gemfile.rails-3-1
       env: DB=postgresql
+    - rvm: 2.2.5
+      gemfile: gemfiles/Gemfile.rails-3-2
+    - rvm: 2.3.1
+      gemfile: gemfiles/Gemfile.rails-3-2
     - rvm: jruby
       gemfile: gemfiles/Gemfile.rails-3-2
       env: DB=postgresql
@@ -49,6 +53,10 @@ matrix:
     - rvm: jruby
       gemfile: gemfiles/Gemfile.rails-4-1
       env: DB=postgresql
+    - rvm: 2.0.0
+      gemfile: gemfiles/Gemfile.rails-5-0
+    - rvm: 2.1.10
+      gemfile: gemfiles/Gemfile.rails-5-0
     - rvm: jruby
       gemfile: gemfiles/Gemfile.rails-5-0
       env: DB=postgresql
