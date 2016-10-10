@@ -30,7 +30,6 @@ if (ActiveRecord::VERSION::MAJOR == 4 && ActiveRecord::VERSION::MINOR == 2) ||
             def type_cast_from_user(value)
               UUIDTools::UUID.serialize(value) if value
             end
-            alias_method :type_cast_from_database, :type_cast_from_user
           end
         end
       end
