@@ -169,6 +169,14 @@ module ActiveUUID
       end
     end
 
+    module PostgresqlTypeOverride
+      def deserialize(value)
+        UUIDTools::UUID.serialize(value) if value
+      end
+
+      alias_method :cast, :deserialize
+    end
+
     module TypeMapOverride
       def initialize_type_map(m)
         super
@@ -197,6 +205,7 @@ module ActiveUUID
           end
 
           ActiveRecord::ConnectionAdapters::SQLite3Adapter.prepend TypeMapOverride if defined? ActiveRecord::ConnectionAdapters::SQLite3Adapter
+          ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Uuid.prepend PostgresqlTypeOverride if defined? ActiveRecord::ConnectionAdapters::PostgreSQLAdapter
         elsif ActiveRecord::VERSION::MAJOR == 4 && ActiveRecord::VERSION::MINOR == 2
           ActiveRecord::ConnectionAdapters::Mysql2Adapter.prepend TypeMapOverride if defined? ActiveRecord::ConnectionAdapters::Mysql2Adapter
           ActiveRecord::ConnectionAdapters::SQLite3Adapter.prepend TypeMapOverride if defined? ActiveRecord::ConnectionAdapters::SQLite3Adapter
