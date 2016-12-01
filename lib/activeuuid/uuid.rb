@@ -83,7 +83,7 @@ module Arel
     end
 
     class WhereSql < Arel::Visitors::ToSql
-      def visit_UUIDTools_UUID(o)
+      def visit_UUIDTools_UUID(o, a = nil)
         o.quoted_id
       end
     end
