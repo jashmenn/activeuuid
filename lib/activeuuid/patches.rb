@@ -174,6 +174,7 @@ module ActiveUUID
         end
 
         alias_method_chain :initialize_type_map, :uuid
+      end
     end
 
     module HasAndBelongsToManyAssociationPreloader
