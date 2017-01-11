@@ -2,11 +2,17 @@ require 'spec_helper'
 
 describe ActiveRecord::Base do
   context '.connection' do
+    def table_exists?(connection, table_name)
+      connection.respond_to?(:data_source_exists?) ?
+        connection.data_source_exists?(table_name) :
+        connection.table_exists?(table_name)
+    end
+
     let!(:connection) { ActiveRecord::Base.connection }
     let(:table_name) { :test_uuid_field_creation }
 
     before do
-      connection.drop_table(table_name) if connection.table_exists?(table_name)
+      connection.drop_table(table_name) if table_exists?(connection, table_name)
       connection.create_table(table_name)
     end
 
@@ -14,7 +20,7 @@ describe ActiveRecord::Base do
       connection.drop_table table_name
     end
 
-    specify { connection.table_exists?(table_name).should be_truthy }
+    specify { table_exists?(connection, table_name).should be_truthy }
 
     context '#add_column' do
       let(:column_name) { :uuid_column }
@@ -218,4 +224,3 @@ describe UuidArticleWithNamespace do
     its(:id) { should == uuid }
   end
 end
-
