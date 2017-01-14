@@ -35,5 +35,5 @@ Gem::Specification.new do |s|
   end
 
   s.add_runtime_dependency "uuidtools"
-  s.add_runtime_dependency "activerecord", '>= 3.1'
+  s.add_runtime_dependency "activerecord", '>= 4.0'
 end
