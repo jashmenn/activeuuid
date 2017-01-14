@@ -31,5 +31,11 @@ matrix:
       gemfile: Gemfile
     - rvm: 2.1.10
       gemfile: gemfiles/Gemfile.rails-5-0
+    - rvm: 2.4.0
+      gemfile: gemfiles/Gemfile.rails-4-0
+    - rvm: 2.4.0
+      gemfile: gemfiles/Gemfile.rails-4-1
+    - rvm: 2.4.0
+      gemfile: gemfiles/Gemfile.rails-4-2
     - rvm: jruby-9.1.7.0
       gemfile: gemfiles/Gemfile.rails-5-0
