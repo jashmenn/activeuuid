@@ -33,7 +33,3 @@ matrix:
       gemfile: gemfiles/Gemfile.rails-5-0
     - rvm: jruby-9.1.7.0
       gemfile: gemfiles/Gemfile.rails-5-0
-    - rvm: 2.1.10
-      gemfile: gemfiles/Gemfile.rails-head
-    - rvm: jruby-9.1.7.0
-      gemfile: gemfiles/Gemfile.rails-head
