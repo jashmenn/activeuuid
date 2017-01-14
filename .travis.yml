@@ -3,7 +3,6 @@ before_script:
   - psql -c 'create database activeuuid_test;' -U postgres
 
 rvm:
-  - 2.0.0
   - 2.1.10
   - 2.2.5
   - 2.3.1
@@ -29,8 +28,6 @@ matrix:
   allow_failures:
     - gemfile: gemfiles/Gemfile.rails-head
   exclude:
-    - rvm: 2.0.0
-      gemfile: Gemfile
     - rvm: 2.1.10
       gemfile: Gemfile
     - rvm: 2.2.5
@@ -53,15 +50,11 @@ matrix:
     - rvm: jruby
       gemfile: gemfiles/Gemfile.rails-4-1
       env: DB=postgresql
-    - rvm: 2.0.0
-      gemfile: gemfiles/Gemfile.rails-5-0
     - rvm: 2.1.10
       gemfile: gemfiles/Gemfile.rails-5-0
     - rvm: jruby
       gemfile: gemfiles/Gemfile.rails-5-0
       env: DB=postgresql
-    - rvm: 2.0.0
-      gemfile: gemfiles/Gemfile.rails-head
     - rvm: 2.1.10
       gemfile: gemfiles/Gemfile.rails-head
     - rvm: jruby
