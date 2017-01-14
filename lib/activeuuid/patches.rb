@@ -1,12 +1,18 @@
 require 'active_record'
 require 'active_support/concern'
 
-if ActiveRecord::VERSION::MAJOR == 4 and ActiveRecord::VERSION::MINOR == 2
+if (ActiveRecord::VERSION::MAJOR == 4 && ActiveRecord::VERSION::MINOR == 2) ||
+    (ActiveRecord::VERSION::MAJOR == 5 && ActiveRecord::VERSION::MINOR == 0)
   module ActiveRecord
     module Type
       class UUID < Binary # :nodoc:
         def type
           :uuid
+        end
+
+        def serialize(value)
+          return if value.nil?
+          UUIDTools::UUID.serialize(value)
         end
 
         def cast_value(value)
@@ -24,7 +30,6 @@ if ActiveRecord::VERSION::MAJOR == 4 and ActiveRecord::VERSION::MINOR == 2
             def type_cast_from_user(value)
               UUIDTools::UUID.serialize(value) if value
             end
-            alias_method :type_cast_from_database, :type_cast_from_user
           end
         end
       end
@@ -164,36 +169,60 @@ module ActiveUUID
       end
     end
 
-    module AbstractAdapter
-      extend ActiveSupport::Concern
+    module PostgresqlTypeOverride
+      def deserialize(value)
+        UUIDTools::UUID.serialize(value) if value
+      end
 
-      included do
-        def initialize_type_map_with_uuid(m)
-          initialize_type_map_without_uuid(m)
-          register_class_with_limit m, /binary\(16(,0)?\)/i, ::ActiveRecord::Type::UUID
+      alias_method :cast, :deserialize
+    end
+
+    module TypeMapOverride
+      def initialize_type_map(m)
+        super
+
+        register_class_with_limit m, /binary\(16(,0)?\)/i, ::ActiveRecord::Type::UUID
+      end
+    end
+
+    module MysqlTypeToSqlOverride
+      def type_to_sql(type, limit = nil, precision = nil, scale = nil, unsigned = nil)
+        type.to_s == 'uuid' ? 'binary(16)' : super
+      end
+    end
+
+    module ConnectionHandling
+      def establish_connection(_ = nil)
+        super
+
+        ActiveRecord::ConnectionAdapters::Table.send :include, Migrations if defined? ActiveRecord::ConnectionAdapters::Table
+        ActiveRecord::ConnectionAdapters::TableDefinition.send :include, Migrations if defined? ActiveRecord::ConnectionAdapters::TableDefinition
+
+        if ActiveRecord::VERSION::MAJOR == 5 && ActiveRecord::VERSION::MINOR == 0
+          if defined? ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter
+            ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter.prepend TypeMapOverride
+            ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter.prepend MysqlTypeToSqlOverride
+          end
+
+          ActiveRecord::ConnectionAdapters::SQLite3Adapter.prepend TypeMapOverride if defined? ActiveRecord::ConnectionAdapters::SQLite3Adapter
+          ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Uuid.prepend PostgresqlTypeOverride if defined? ActiveRecord::ConnectionAdapters::PostgreSQLAdapter
+        elsif ActiveRecord::VERSION::MAJOR == 4 && ActiveRecord::VERSION::MINOR == 2
+          ActiveRecord::ConnectionAdapters::Mysql2Adapter.prepend TypeMapOverride if defined? ActiveRecord::ConnectionAdapters::Mysql2Adapter
+          ActiveRecord::ConnectionAdapters::SQLite3Adapter.prepend TypeMapOverride if defined? ActiveRecord::ConnectionAdapters::SQLite3Adapter
+        else
+          ActiveRecord::ConnectionAdapters::Column.send :include, Column
+          ActiveRecord::ConnectionAdapters::PostgreSQLColumn.send :include, PostgreSQLColumn if defined? ActiveRecord::ConnectionAdapters::PostgreSQLColumn
         end
 
-        alias_method_chain :initialize_type_map, :uuid
+        ActiveRecord::ConnectionAdapters::MysqlAdapter.send :include, Quoting if defined? ActiveRecord::ConnectionAdapters::MysqlAdapter
+        ActiveRecord::ConnectionAdapters::Mysql2Adapter.send :include, Quoting if defined? ActiveRecord::ConnectionAdapters::Mysql2Adapter
+        ActiveRecord::ConnectionAdapters::SQLite3Adapter.send :include, Quoting if defined? ActiveRecord::ConnectionAdapters::SQLite3Adapter
+        ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.send :include, PostgreSQLQuoting if defined? ActiveRecord::ConnectionAdapters::PostgreSQLAdapter
       end
     end
 
     def self.apply!
-      ActiveRecord::ConnectionAdapters::Table.send :include, Migrations if defined? ActiveRecord::ConnectionAdapters::Table
-      ActiveRecord::ConnectionAdapters::TableDefinition.send :include, Migrations if defined? ActiveRecord::ConnectionAdapters::TableDefinition
-
-      if ActiveRecord::VERSION::MAJOR == 4 and ActiveRecord::VERSION::MINOR == 2
-        ActiveRecord::ConnectionAdapters::Mysql2Adapter.send :include, AbstractAdapter if defined? ActiveRecord::ConnectionAdapters::Mysql2Adapter
-        ActiveRecord::ConnectionAdapters::SQLite3Adapter.send :include, AbstractAdapter if defined? ActiveRecord::ConnectionAdapters::SQLite3Adapter
-      else
-        ActiveRecord::ConnectionAdapters::Column.send :include, Column
-        ActiveRecord::ConnectionAdapters::PostgreSQLColumn.send :include, PostgreSQLColumn if defined? ActiveRecord::ConnectionAdapters::PostgreSQLColumn
-      end
-      ArJdbc::MySQL::Column.send :include, MysqlJdbcColumn if defined? ArJdbc::MySQL::Column
-
-      ActiveRecord::ConnectionAdapters::MysqlAdapter.send :include, Quoting if defined? ActiveRecord::ConnectionAdapters::MysqlAdapter
-      ActiveRecord::ConnectionAdapters::Mysql2Adapter.send :include, Quoting if defined? ActiveRecord::ConnectionAdapters::Mysql2Adapter
-      ActiveRecord::ConnectionAdapters::SQLite3Adapter.send :include, Quoting if defined? ActiveRecord::ConnectionAdapters::SQLite3Adapter
-      ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.send :include, PostgreSQLQuoting if defined? ActiveRecord::ConnectionAdapters::PostgreSQLAdapter
+      ActiveRecord::Base.singleton_class.prepend ConnectionHandling
     end
   end
 end
