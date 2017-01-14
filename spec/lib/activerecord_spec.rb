@@ -111,7 +111,7 @@ end
 describe UuidArticle do
   let!(:article) { Fabricate :uuid_article }
   let!(:id) { article.id }
-  let(:model) { described_class }
+  let(:model) { UuidArticle }
   subject { model }
 
   context 'model' do
