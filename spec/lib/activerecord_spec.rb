@@ -2,11 +2,17 @@ require 'spec_helper'
 
 describe ActiveRecord::Base do
   context '.connection' do
+    def table_exists?(connection, table_name)
+      connection.respond_to?(:data_source_exists?) ?
+        connection.data_source_exists?(table_name) :
+        connection.table_exists?(table_name)
+    end
+
     let!(:connection) { ActiveRecord::Base.connection }
     let(:table_name) { :test_uuid_field_creation }
 
     before do
-      connection.drop_table(table_name) if connection.table_exists?(table_name)
+      connection.drop_table(table_name) if table_exists?(connection, table_name)
       connection.create_table(table_name)
     end
 
@@ -14,7 +20,7 @@ describe ActiveRecord::Base do
       connection.drop_table table_name
     end
 
-    specify { connection.table_exists?(table_name).should be_truthy }
+    specify { table_exists?(connection, table_name).should be_truthy }
 
     context '#add_column' do
       let(:column_name) { :uuid_column }
@@ -43,7 +49,6 @@ describe ActiveRecord::Base do
         spec_for_adapter do |adapters|
           adapters.sqlite3 { connection.change_column table_name, column_name, :uuid }
           adapters.mysql2 { connection.change_column table_name, column_name, :uuid }
-          # adapters.postgresql { connection.change_column table_name, column_name, :uuid }
         end
       end
 
@@ -51,7 +56,7 @@ describe ActiveRecord::Base do
         spec_for_adapter do |adapters|
           adapters.sqlite3 { column.sql_type.should == 'binary(16)' }
           adapters.mysql2 { column.sql_type.should == 'binary(16)' }
-          adapters.postgresql { pending('postgresql can`t change column type to uuid') }
+          adapters.postgresql { skip('postgresql can`t change column type to uuid') }
         end
       end
     end
@@ -105,7 +110,7 @@ end
 describe UuidArticle do
   let!(:article) { Fabricate :uuid_article }
   let!(:id) { article.id }
-  let(:model) { described_class }
+  let(:model) { UuidArticle }
   subject { model }
 
   context 'model' do
@@ -218,4 +223,3 @@ describe UuidArticleWithNamespace do
     its(:id) { should == uuid }
   end
 end
-

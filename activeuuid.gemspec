@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_development_dependency "rake"
-  s.add_development_dependency "rspec", "~> 2.99.0"
+  s.add_development_dependency "rspec", "~> 3.5.0"
   s.add_development_dependency "rspec-its"
   s.add_development_dependency "activesupport"
   s.add_development_dependency "database_cleaner"
@@ -35,5 +35,5 @@ Gem::Specification.new do |s|
   end
 
   s.add_runtime_dependency "uuidtools"
-  s.add_runtime_dependency "activerecord", '>= 3.1'
+  s.add_runtime_dependency "activerecord", '>= 4.0'
 end
