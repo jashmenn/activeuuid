@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/jashmenn/activeuuid.png)](http://travis-ci.org/jashmenn/activeuuid)
+[![Build Status](https://travis-ci.org/inbeom/activeuuid.png)](http://travis-ci.org/inbeom/activeuuid)
 
 # activeuuid
 
@@ -131,7 +131,7 @@ Add this to your `Gemfile`
 
     gem "activeuuid"
 
-Or get the code here: https://github.com/jashmenn/activeuuid
+Or get the code here: https://github.com/inbeom/activeuuid
 
 
 ## References
@@ -144,7 +144,7 @@ Or get the code here: https://github.com/jashmenn/activeuuid
 * [7] http://tools.ietf.org/html/rfc4122.html#appendix-C
 
 ## Dependencies
-Rails ~> 3.1.0
+Rails >= 4.0.0
 
 ## Authors
 
