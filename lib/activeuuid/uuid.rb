@@ -26,7 +26,7 @@ module UUIDTools
     end
 
     def to_param
-      to_s
+      hexdigest.upcase
     end
 
     # YAML.dump
