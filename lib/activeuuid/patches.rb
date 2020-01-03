@@ -209,7 +209,13 @@ module ActiveUUID
       ActiveRecord::ConnectionAdapters::SQLite3Adapter.send :include, Quoting if defined? ActiveRecord::ConnectionAdapters::SQLite3Adapter
       ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.send :include, PostgreSQLQuoting if defined? ActiveRecord::ConnectionAdapters::PostgreSQLAdapter
 
-      ActiveRecord::Associations::Preloader::HasAndBelongsToMany.send :include, HasAndBelongsToManyAssociationPreloader
+      if Object.const_defined?("ActiveRecord::Associations::Preloader::HasAndBelongsToMany")
+        # works up to AR 4.0
+        ActiveRecord::Associations::Preloader::HasAndBelongsToMany.send :include, HasAndBelongsToManyAssociationPreloader
+      else
+        # starting in ActiveRecord 4.1
+        ActiveRecord::Associations::Preloader::BelongsTo.send :include, HasAndBelongsToManyAssociationPreloader
+      end
     end
   end
 end

@@ -1,3 +1,3 @@
 module Activeuuid
-  VERSION = "0.5.1.b40"
+  VERSION = "0.5.2.b40"
 end
