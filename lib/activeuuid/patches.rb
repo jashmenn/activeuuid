@@ -183,6 +183,7 @@ module ActiveUUID
       included do
         def records_for_with_conversion(ids)
           records_for_without_conversion(ids).each do |record|
+            next if record[association_key_name].is_a?(UUIDTools::UUID)
             record[association_key_name] = UUIDTools::UUID.parse_raw(record[association_key_name])
           end
         end
